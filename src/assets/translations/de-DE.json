@@ -969,7 +969,12 @@
     "validation.msg.WORKINGCAPITALLOAN.repaymentFrequencyType.override.not.allowed.by.product": "Dieser Wert kann nicht überschrieben werden: Das Produkt erlaubt es nicht.",
     "validation.msg.wc.loan.transaction.adjust.by.delta.not.supported": "Dieser Transaktionstyp kann bei einem Betriebsmitteldarlehen nicht nach Differenz angepasst werden.",
     "validation.msg.WORKINGCAPITALLOAN.transactionAmount.zero.amount.not.supported": "Der Anpassungsbetrag darf nicht null sein.",
-    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "Die Anpassung darf die Transaktion nicht unter null verringern."
+    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "Die Anpassung darf die Transaktion nicht unter null verringern.",
+    "clientScreeningNotConfigured": "Die Kundenprüfung ist für diese Umgebung nicht konfiguriert.",
+    "clientScreeningMissingName": "Für diesen Kunden liegen nicht genügend Namensdaten für eine Prüfung vor.",
+    "clientScreeningMissingAddress": "Für diesen Kunden wurden keine Adressdaten gefunden.",
+    "clientScreeningRequestFailed": "Die Prüfungsanfrage ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "clientScreeningAddressLookupFailed": "Die Adressdaten des Kunden konnten für die Prüfung nicht geladen werden."
   },
   "labels": {
     "Mifos Reporting Plugin for Eclipse Birt": "Mifos Reporting Plugin for Eclipse Birt",
@@ -1366,7 +1371,11 @@
       "Discount Fee Adjustment": "Anpassung der Rabattgebühr",
       "Adjust by Difference": "Nach Differenz anpassen",
       "Open in map": "Auf Karte öffnen",
-      "Configure": "Konfigurieren"
+      "Configure": "Konfigurieren",
+      "Screen All": "Alles prüfen",
+      "Screen Name": "Namen prüfen",
+      "Screen Address": "Adresse prüfen",
+      "Save to Client Notes": "In Kundennotizen speichern"
     },
     "catalogs": {
       "% Amount": "Menge",
@@ -2396,7 +2405,12 @@
       "Services": "Dienstleistungen",
       "Schedules": "Zeitpläne",
       "Reference": "Referenz",
-      "Weekly schedule": "Wochenplan"
+      "Weekly schedule": "Wochenplan",
+      "Sanctions and PEP Screening": "Sanktions- und PEP-Prüfung",
+      "Name Screening": "Namensprüfung",
+      "Address Screening": "Adressprüfung",
+      "Returned Matches": "Gefundene Treffer",
+      "Lower-Scored Candidates": "Kandidaten mit niedrigerer Bewertung"
     },
     "inputs": {
       "Breach Start Type": "Starttyp des Verstoßes",
@@ -4496,7 +4510,41 @@
       "Label": "Bezeichnung",
       "Original Amount": "Ursprünglicher Betrag",
       "Resulting Amount": "Resultierender Betrag",
-      "Head Office": "Hauptgeschäftsstelle"
+      "Head Office": "Hauptgeschäftsstelle",
+      "Overall Status": "Gesamtstatus",
+      "Not Screened": "Nicht geprüft",
+      "Screening In Progress": "Prüfung läuft",
+      "Clear": "Unauffällig",
+      "Possible Match": "Möglicher Treffer",
+      "Match": "Treffer",
+      "Screening Error": "Prüfungsfehler",
+      "Last Screened": "Zuletzt geprüft",
+      "Dataset": "Datensatz",
+      "Datasets": "Datensätze",
+      "Screened Attributes": "Geprüfte Merkmale",
+      "Schema": "Schema",
+      "Topics": "Themen",
+      "Birth Dates": "Geburtsdaten",
+      "Countries": "Länder",
+      "Addresses": "Adressen",
+      "Matched Client Address": "Passende Kundenadresse",
+      "Linked Entities": "Verknüpfte Entitäten",
+      "Score Breakdown": "Bewertungsaufschlüsselung",
+      "Sanctioned": "Sanktioniert",
+      "Sanction-linked": "Mit Sanktionen verknüpft",
+      "Politically Exposed Person": "Politisch exponierte Person",
+      "Close Associate of PEP": "Nahestehende Person einer PEP",
+      "Politician": "Politiker",
+      "Oligarch": "Oligarch",
+      "Crime": "Kriminalität",
+      "Terrorism": "Terrorismus",
+      "Financial Crime": "Finanzkriminalität",
+      "Fraud": "Betrug",
+      "Wanted": "Gesucht",
+      "Debarred": "Ausgeschlossen",
+      "Person of Interest": "Person von Interesse",
+      "Export Controlled": "Exportkontrolliert",
+      "Regulatory Action": "Aufsichtsmaßnahme"
     },
     "links": {
       "Community": "Gemeinschaft",
@@ -6240,7 +6288,16 @@
       "workingCapitalDiscountUpdated": "Betriebskapitalrabatt wurde erfolgreich aktualisiert.",
       "identityDescriptionsUpdated": "Die Beschreibungen der Ausweisdokumente wurden erfolgreich aktualisiert.",
       "identityDescriptionsUpdateFailed": "Einige Beschreibungen der Ausweisdokumente konnten nicht aktualisiert werden.",
-      "unableToAdjustDiscountFee": "Die Rabattgebühr konnte nicht angepasst werden."
+      "unableToAdjustDiscountFee": "Die Rabattgebühr konnte nicht angepasst werden.",
+      "Client screening is not configured": "Die Kundenprüfung ist für diese Umgebung nicht konfiguriert.",
+      "Screen this client against the configured watchlists": "Prüfen Sie Namen und Adressen dieses Kunden gegen die konfigurierten Sanktions- und PEP-Listen. Ergebnisse werden nur gespeichert, wenn Sie sie in den Kundennotizen ablegen.",
+      "Name screening description": "Prüft den Namen des Kunden. Geburtsdatum, Geschlecht und Land werden mitgesendet, damit Namensvettern mit abweichenden Angaben niedriger bewertet werden.",
+      "Address screening description": "Prüft jede aktive hinterlegte Adresse gegen Adressen, die mit gelisteten Personen und Unternehmen verknüpft sind.",
+      "Screening request in progress": "Prüfungsanfrage läuft.",
+      "No screening matches were found": "Es wurden keine Prüfungstreffer gefunden.",
+      "Lower-scored candidates do not affect the status": "Diese Kandidaten liegen unter der Schwelle für mögliche Treffer. Sie beeinflussen den Status nicht und dienen nur zur Durchsicht.",
+      "Screening summary saved to client notes": "Die Prüfungszusammenfassung wurde in den Kundennotizen gespeichert.",
+      "Screening summary could not be saved": "Die Prüfungszusammenfassung konnte nicht in den Kundennotizen gespeichert werden."
     },
     "selections": {
       "standingInstructions": {

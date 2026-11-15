@@ -28,6 +28,7 @@ import { AuditTrailComponent } from './clients-view/audit-trail/audit-trail.comp
 import { DocumentsTabComponent } from './clients-view/documents-tab/documents-tab.component';
 import { DatatableTabComponent } from './clients-view/datatable-tab/datatable-tab.component';
 import { AddressTabComponent } from './clients-view/address-tab/address-tab.component';
+import { ComplianceTabComponent } from './clients-view/compliance-tab/compliance-tab.component';
 import { PersonalDataTabComponent } from './clients-view/personal-data-tab/personal-data-tab.component';
 import { EnrollmentStatusComponent } from './clients-view/enrollment-status/enrollment-status.component';
 import { enrollmentStatusGuard } from './clients-view/enrollment-status/enrollment-status.guard';
@@ -184,6 +185,18 @@ const routes: Routes = [
               resolve: {
                 clientIdentities: ClientIdentitiesResolver,
                 clientIdentifierTemplate: ClientIdentifierTemplateResolver
+              }
+            },
+            {
+              // Sanctions/PEP screening. No resolver: the tab uses the parent's
+              // clientViewData and fetches addresses itself, so a failed address
+              // lookup does not block opening the tab.
+              path: 'compliance',
+              component: ComplianceTabComponent,
+              data: {
+                title: 'labels.inputs.Compliance',
+                breadcrumb: 'labels.inputs.Compliance',
+                routeParamBreadcrumb: false
               }
             },
             {

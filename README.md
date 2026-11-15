@@ -461,29 +461,40 @@ For more detailed configuration options, refer to the `env.sample` file in the r
 
 #### Yente Client Screening
 
-These variables enable read-only client screening with Yente from the selected
-client view. The feature is intentionally narrow:
+These variables enable sanctions and PEP screening with
+[Yente](https://www.opensanctions.org/docs/yente/) (OpenSanctions) on the
+client **Compliance** tab. The tab appears only when Yente is configured. The
+feature is deliberately narrow:
 
-- screening runs only when a user opens a single client and manually clicks one
-  of the screening buttons
-- screening results are not stored in the database
-- no audit trail is created by the web app
+- screening runs only when a user clicks one of the screening buttons on a
+  single client; nothing is sent to Yente when the tab opens
+- results stay in memory unless the user clicks `Save to Client Notes`, which
+  writes a plain-text summary as a client note (requires `CREATE_CLIENTNOTE`)
 - no account actions are triggered automatically
 
-Two separate user interactions are provided in the client view:
+The Compliance tab provides three actions:
 
-1. `Screen Name` screens the client identity data shown on the page
-2. `Screen Address` screens collected client address data if any exists
+1. `Screen Name` sends a `Person` query (or a `Company` query for Entity
+   clients) with the client's names. The date of birth (or incorporation
+   date), gender, registration number and country of residence (taken from
+   the addresses on file) are sent as qualifiers. Yente lowers a candidate's
+   score when a qualifier disagrees, so namesakes with different details drop
+   out. The tab lists every attribute that was sent, because wrong client data
+   can also hide a real match.
+2. `Screen Address` sends one `Address` query per active address on file and
+   compares it with the address entities in the Yente index. For the top
+   candidates, the tab also looks up the listed people or companies linked to
+   that address (`GET /entities/{id}?nested=true`). Address candidates that
+   name only a country or city (for example a plain "Nigeria" address record)
+   are dropped, because they match almost every local address.
+3. `Screen All` runs both checks. The overall status is the more serious of
+   the two, and a failed check never shows as `Clear`.
 
-The UI normalizes Yente responses into three operator-facing outcomes:
-
-- `Match`
-- `Possible Match`
-- `Clear`
-
-When Yente returns possible or confirmed matches, the web app displays the
-returned match list for review, including score, schema, datasets, countries,
-addresses, and source details when available.
+The UI sorts results into `Match`, `Possible Match` and `Clear`. Candidates
+below the possible-match threshold are still listed under "Lower-Scored
+Candidates" for review. Each candidate shows its score, topics (Sanctioned,
+PEP, Wanted...), datasets, countries, birth dates, addresses, the score
+breakdown returned by Yente, and links to the source publication.
 
 | Variable                       | Description                                                                            | Default Value |
 | ------------------------------ | -------------------------------------------------------------------------------------- | ------------- |
@@ -495,28 +506,27 @@ addresses, and source details when available.
 
 **Technical flow**
 
-1. The user opens a client record.
-2. The client view renders a `Client Screening` panel with `Screen Name` and
-   `Screen Address`.
-3. The web app sends a direct request to Yente. No web-app proxy is added for
-   this feature.
-4. `Screen Name` uses the visible client name fields.
-5. `Screen Address` fetches client addresses only when the user explicitly
-   requests the check.
-6. The response is normalized in the frontend and displayed immediately.
-7. The result remains in memory only for the current page session.
+1. The user opens a client record and selects the `Compliance` tab
+   (`/clients/{id}/compliance`).
+2. The tab reads the client from the parent route and fetches the client's
+   addresses once in the background. If the address lookup fails, the name
+   check still runs, without the country qualifier.
+3. The browser sends the screening requests directly to Yente
+   (`POST {YENTE_SCREENING_URL}/match/{dataset}`). The web app adds no proxy.
+4. The response is normalized in the frontend and displayed immediately.
 
 **Implementation notes**
 
 - The feature is informational only and does not suspend, close, or otherwise
-  mutate the client record.
-- A configured `YENTE_SCREENING_URL` is sufficient to render the screening UI.
+  change the client record (except for the optional note).
+- A configured `YENTE_SCREENING_URL` is enough to show the Compliance tab.
   `ENABLE_YENTE_SCREENING` is optional and can still be used as an explicit
-  switch when desired.
-- Deployments concerned about browser CORS should place Yente on an accessible
-  same-origin or otherwise CORS-compatible endpoint.
-- This feature reuses the existing external-system integration pattern of
-  bypassing Fineract HTTP interceptors for outbound third-party requests.
+  switch.
+- Yente must allow CORS from the web app origin. When the web app is served
+  over HTTPS, Yente must be served over HTTPS too. Otherwise browsers block the
+  request as mixed content.
+- Requests to Yente bypass the Fineract HTTP interceptors, so Fineract
+  credentials and tenant headers are never sent to the screening service.
 
 #### Interbank Transfers Settings
 

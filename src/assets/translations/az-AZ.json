@@ -923,7 +923,12 @@
     "validation.msg.WORKINGCAPITALLOAN.repaymentFrequencyType.override.not.allowed.by.product": "Bu dəyər dəyişdirilə bilməz: məhsul buna icazə vermir.",
     "validation.msg.wc.loan.transaction.adjust.by.delta.not.supported": "Bu əməliyyat növü dövriyyə kapitalı krediti üzrə fərqlə düzəliş edilə bilməz.",
     "validation.msg.WORKINGCAPITALLOAN.transactionAmount.zero.amount.not.supported": "Düzəliş məbləği sıfır ola bilməz.",
-    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "Düzəliş əməliyyatı sıfırdan aşağı sala bilməz."
+    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "Düzəliş əməliyyatı sıfırdan aşağı sala bilməz.",
+    "clientScreeningNotConfigured": "Bu mühit üçün müştəri yoxlaması konfiqurasiya edilməyib.",
+    "clientScreeningMissingName": "Bu müştərinin yoxlama aparmaq üçün kifayət qədər ad məlumatı yoxdur.",
+    "clientScreeningMissingAddress": "Bu müştəri üçün ünvan məlumatı tapılmadı.",
+    "clientScreeningRequestFailed": "Yoxlama sorğusu uğursuz oldu. Yenidən cəhd edin.",
+    "clientScreeningAddressLookupFailed": "Yoxlama üçün müştərinin ünvan məlumatları yüklənə bilmədi."
   },
   "labels": {
     "Mifos Reporting Plugin for Eclipse Birt": "Eclipse Birt üçün Mifos hesabat əlavəsi",
@@ -1320,7 +1325,11 @@
       "Discount Fee Adjustment": "Endirim Haqqı Düzəlişi",
       "Adjust by Difference": "Fərqlə düzəliş et",
       "Open in map": "Xəritədə aç",
-      "Configure": "Tənzimlə"
+      "Configure": "Tənzimlə",
+      "Screen All": "Hamısını yoxla",
+      "Screen Name": "Adı yoxla",
+      "Screen Address": "Ünvanı yoxla",
+      "Save to Client Notes": "Müştəri qeydlərində saxla"
     },
     "catalogs": {
       "% Amount": "Məbləğin %-i",
@@ -2350,7 +2359,12 @@
       "Edit Charge Amount": "Haqqın məbləğini redaktə et",
       "Edit Charge Date": "Haqqın tarixini redaktə et",
       "Edit Guarantor": "Zaminin məlumatlarını redaktə et",
-      "Weekly schedule": "Həftəlik cədvəl"
+      "Weekly schedule": "Həftəlik cədvəl",
+      "Sanctions and PEP Screening": "Sanksiya və PEP yoxlaması",
+      "Name Screening": "Ad yoxlaması",
+      "Address Screening": "Ünvan yoxlaması",
+      "Returned Matches": "Tapılan uyğunluqlar",
+      "Lower-Scored Candidates": "Aşağı ballı namizədlər"
     },
     "inputs": {
       "Breach Start Type": "Pozuntunun başlanğıc növü",
@@ -4444,7 +4458,41 @@
       "Label": "Etiket",
       "Original Amount": "İlkin məbləğ",
       "Resulting Amount": "Nəticə məbləği",
-      "Head Office": "Baş ofis"
+      "Head Office": "Baş ofis",
+      "Overall Status": "Ümumi status",
+      "Not Screened": "Yoxlanılmayıb",
+      "Screening In Progress": "Yoxlama gedir",
+      "Clear": "Uyğunluq yoxdur",
+      "Possible Match": "Mümkün uyğunluq",
+      "Match": "Uyğunluq",
+      "Screening Error": "Yoxlama xətası",
+      "Last Screened": "Son yoxlama",
+      "Dataset": "Məlumat dəsti",
+      "Datasets": "Məlumat dəstləri",
+      "Screened Attributes": "Yoxlanılan atributlar",
+      "Schema": "Sxem",
+      "Topics": "Mövzular",
+      "Birth Dates": "Doğum tarixləri",
+      "Countries": "Ölkələr",
+      "Addresses": "Ünvanlar",
+      "Matched Client Address": "Uyğun gələn müştəri ünvanı",
+      "Linked Entities": "Əlaqəli subyektlər",
+      "Score Breakdown": "Balın təfərrüatı",
+      "Sanctioned": "Sanksiya altında",
+      "Sanction-linked": "Sanksiya ilə əlaqəli",
+      "Politically Exposed Person": "Siyasi xadim (PEP)",
+      "Close Associate of PEP": "PEP-in yaxın əməkdaşı",
+      "Politician": "Siyasətçi",
+      "Oligarch": "Oliqarx",
+      "Crime": "Cinayət",
+      "Terrorism": "Terrorizm",
+      "Financial Crime": "Maliyyə cinayəti",
+      "Fraud": "Fırıldaqçılıq",
+      "Wanted": "Axtarışda",
+      "Debarred": "Məhdudlaşdırılıb",
+      "Person of Interest": "Maraq doğuran şəxs",
+      "Export Controlled": "İxrac nəzarətində",
+      "Regulatory Action": "Tənzimləyici tədbir"
     },
     "links": {
       "Community": "İcma",
@@ -4789,7 +4837,7 @@
       "Active Savers": "Aktiv əmanətçilər",
       "Amount Collected": "Toplanmış məbləğ",
       "Amount must be greater than zero": "Məbləğ sıfırdan böyük olmalıdır",
-      "Base Teller": "Baza kassiri",
+      "Base Teller": "Əsas kassir",
       "Base Teller Savings Account Opening": "Əsas kassirin əmanət hesabının açılması",
       "Bill and Service Payment": "Hesab və xidmət ödənişi",
       "Georeference Map": "Coğrafi istinad xəritəsi",
@@ -4895,7 +4943,6 @@
       "Button for individual account": "Bu düymə fərdi hesablar, qruplar və mərkəzlər üçün istifadə ediləcək",
       "Buy Down Fees": "Faiz dərəcəsinin azaldılması haqları",
       "Cancel Pending Sale": "Gözləyən satışı ləğv et",
-      "Base Teller": "Əsas kassir",
       "Cash denomination total must equal the funding amount": "Nominal üzrə nağd pulun cəmi maliyyələşdirmə məbləğinə bərabər olmalıdır.",
       "Cash denomination total must equal the transaction amount": "Nominal üzrə nağd pulun cəmi əməliyyat məbləğinə bərabər olmalıdır.",
       "Cash received cannot be less than the check amount": "Alınmış nağd pul çek məbləğindən az ola bilməz.",
@@ -6253,7 +6300,16 @@
       "workingCapitalDiscountUpdated": "Dövriyyə kapitalı üzrə endirim uğurla yeniləndi.",
       "identityDescriptionsUpdated": "Şəxsiyyət sənədlərinin təsvirləri yeniləndi.",
       "identityDescriptionsUpdateFailed": "Bəzi şəxsiyyət sənədlərinin təsvirlərini yeniləmək mümkün olmadı.",
-      "unableToAdjustDiscountFee": "Endirim haqqını düzəltmək mümkün olmadı."
+      "unableToAdjustDiscountFee": "Endirim haqqını düzəltmək mümkün olmadı.",
+      "Client screening is not configured": "Bu mühit üçün müştəri yoxlaması konfiqurasiya edilməyib.",
+      "Screen this client against the configured watchlists": "Bu müştərinin adını və ünvanlarını konfiqurasiya edilmiş sanksiya və PEP siyahıları ilə yoxlayın. Nəticələr yalnız müştəri qeydlərində saxladığınız halda qorunur.",
+      "Name screening description": "Müştərinin adını yoxlayır. Doğum tarixi, cins və ölkə də göndərilir ki, fərqli məlumatlara malik adaşlar daha aşağı bal alsın.",
+      "Address screening description": "Qeydiyyatda olan hər aktiv ünvanı siyahıdakı şəxslər və şirkətlərlə əlaqəli ünvanlarla yoxlayır.",
+      "Screening request in progress": "Yoxlama sorğusu gedir.",
+      "No screening matches were found": "Heç bir uyğunluq tapılmadı.",
+      "Lower-scored candidates do not affect the status": "Bu namizədlərin balı mümkün uyğunluq həddindən aşağıdır. Onlar statusa təsir etmir və yalnız baxış üçün göstərilir.",
+      "Screening summary saved to client notes": "Yoxlama xülasəsi müştəri qeydlərində saxlanıldı.",
+      "Screening summary could not be saved": "Yoxlama xülasəsi müştəri qeydlərində saxlanıla bilmədi."
     },
     "cbild": {
       "fields": {
@@ -7236,7 +7292,10 @@
       "dateRange": "Başlanğıc tarixi son tarixdən əvvəl və ya ona bərabər olmalıdır.",
       "referenceLength": "İstinad 200 simvoldan çox olmamalıdır."
     },
-    "denominationTypes": { "BANKNOTE": "Əskinas", "COIN": "Sikkə" }
+    "denominationTypes": {
+      "BANKNOTE": "Əskinas",
+      "COIN": "Sikkə"
+    }
   },
   "enrollmentStatus": {
     "title": "Qəbulun vəziyyəti",
@@ -7714,7 +7773,6 @@
     "drawerSetup": "Başlamaq üçün kassa açın",
     "setupRequired": "Bu çıxarış sahəsinə diqqət yetirmək lazımdır",
     "checkHint": "Çek buraxılışı aktiv deyil. Nağd pulla davam edə bilərsiniz.",
-
     "customer": "Müştəri",
     "notAvailable": "Mövcud deyil",
     "forbidden": "Bu əməliyyatı yerinə yetirməyə icazəniz yoxdur.",

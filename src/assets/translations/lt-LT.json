@@ -967,7 +967,12 @@
     "validation.msg.WORKINGCAPITALLOAN.repaymentFrequencyType.override.not.allowed.by.product": "Šios reikšmės pakeisti negalima: produktas to neleidžia.",
     "validation.msg.wc.loan.transaction.adjust.by.delta.not.supported": "Šio tipo operacijos apyvartinio kapitalo paskolai negalima koreguoti skirtumu.",
     "validation.msg.WORKINGCAPITALLOAN.transactionAmount.zero.amount.not.supported": "Koregavimo suma negali būti nulis.",
-    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "Koregavimas negali sumažinti operacijos žemiau nulio."
+    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "Koregavimas negali sumažinti operacijos žemiau nulio.",
+    "clientScreeningNotConfigured": "Klientų tikrinimas šioje aplinkoje nesukonfigūruotas.",
+    "clientScreeningMissingName": "Šio kliento vardo duomenų nepakanka patikrinimui atlikti.",
+    "clientScreeningMissingAddress": "Šiam klientui nerasta adreso duomenų.",
+    "clientScreeningRequestFailed": "Tikrinimo užklausa nepavyko. Bandykite dar kartą.",
+    "clientScreeningAddressLookupFailed": "Nepavyko įkelti kliento adresų tikrinimui."
   },
   "labels": {
     "Mifos Reporting Plugin for Eclipse Birt": "Mifos Reporting Plugin for Eclipse Birt",
@@ -1364,7 +1369,11 @@
       "Discount Fee Adjustment": "Nuolaidos mokesčio koregavimas",
       "Adjust by Difference": "Koreguoti skirtumu",
       "Open in map": "Atidaryti žemėlapyje",
-      "Configure": "Konfigūruoti"
+      "Configure": "Konfigūruoti",
+      "Screen All": "Tikrinti viską",
+      "Screen Name": "Tikrinti vardą",
+      "Screen Address": "Tikrinti adresą",
+      "Save to Client Notes": "Išsaugoti kliento pastabose"
     },
     "catalogs": {
       "% Amount": "Suma",
@@ -2394,7 +2403,12 @@
       "Services": "Paslaugos",
       "Schedules": "Tvarkaraščiai",
       "Reference": "Nuoroda",
-      "Weekly schedule": "Savaitės tvarkaraštis"
+      "Weekly schedule": "Savaitės tvarkaraštis",
+      "Sanctions and PEP Screening": "Sankcijų ir PEP tikrinimas",
+      "Name Screening": "Vardo tikrinimas",
+      "Address Screening": "Adreso tikrinimas",
+      "Returned Matches": "Rasti atitikmenys",
+      "Lower-Scored Candidates": "Žemesnio balo kandidatai"
     },
     "inputs": {
       "Breach Start Type": "Pažeidimo pradžios tipas",
@@ -4494,7 +4508,41 @@
       "Label": "Etiketė",
       "Original Amount": "Pradinė suma",
       "Resulting Amount": "Galutinė suma",
-      "Head Office": "Pagrindinis padalinys"
+      "Head Office": "Pagrindinis padalinys",
+      "Overall Status": "Bendra būsena",
+      "Not Screened": "Netikrinta",
+      "Screening In Progress": "Vyksta tikrinimas",
+      "Clear": "Atitikmenų nėra",
+      "Possible Match": "Galimas atitikmuo",
+      "Match": "Atitikmuo",
+      "Screening Error": "Tikrinimo klaida",
+      "Last Screened": "Paskutinį kartą tikrinta",
+      "Dataset": "Duomenų rinkinys",
+      "Datasets": "Duomenų rinkiniai",
+      "Screened Attributes": "Tikrinti požymiai",
+      "Schema": "Schema",
+      "Topics": "Temos",
+      "Birth Dates": "Gimimo datos",
+      "Countries": "Šalys",
+      "Addresses": "Adresai",
+      "Matched Client Address": "Atitinkantis kliento adresas",
+      "Linked Entities": "Susiję subjektai",
+      "Score Breakdown": "Balo išklotinė",
+      "Sanctioned": "Taikomos sankcijos",
+      "Sanction-linked": "Susijęs su sankcijomis",
+      "Politically Exposed Person": "Politikoje dalyvaujantis asmuo",
+      "Close Associate of PEP": "PEP artimas bendradarbis",
+      "Politician": "Politikas",
+      "Oligarch": "Oligarchas",
+      "Crime": "Nusikalstamumas",
+      "Terrorism": "Terorizmas",
+      "Financial Crime": "Finansiniai nusikaltimai",
+      "Fraud": "Sukčiavimas",
+      "Wanted": "Ieškomas",
+      "Debarred": "Pašalintas",
+      "Person of Interest": "Dominantis asmuo",
+      "Export Controlled": "Taikoma eksporto kontrolė",
+      "Regulatory Action": "Reguliavimo priemonė"
     },
     "links": {
       "Community": "bendruomenė",
@@ -6302,7 +6350,16 @@
       "workingCapitalDiscountUpdated": "Apyvartinio kapitalo paskolos nuolaida buvo sėkmingai atnaujinta.",
       "identityDescriptionsUpdated": "Tapatybės dokumentų aprašai sėkmingai atnaujinti.",
       "identityDescriptionsUpdateFailed": "Kai kurių tapatybės dokumentų aprašų atnaujinti nepavyko.",
-      "unableToAdjustDiscountFee": "Nepavyko koreguoti nuolaidos mokesčio."
+      "unableToAdjustDiscountFee": "Nepavyko koreguoti nuolaidos mokesčio.",
+      "Client screening is not configured": "Klientų tikrinimas šioje aplinkoje nesukonfigūruotas.",
+      "Screen this client against the configured watchlists": "Patikrinkite šio kliento vardą ir adresus pagal sukonfigūruotus sankcijų ir PEP sąrašus. Rezultatai saugomi tik jei juos išsaugote kliento pastabose.",
+      "Name screening description": "Tikrina kliento vardą. Taip pat siunčiami gimimo data, lytis ir šalis, kad bendrapavardžiai su kitais duomenimis gautų žemesnį balą.",
+      "Address screening description": "Tikrina kiekvieną aktyvų užregistruotą adresą pagal adresus, susijusius su sąrašuose esančiais asmenimis ir įmonėmis.",
+      "Screening request in progress": "Vyksta tikrinimo užklausa.",
+      "No screening matches were found": "Atitikmenų nerasta.",
+      "Lower-scored candidates do not affect the status": "Šių kandidatų balas žemesnis už galimo atitikmens slenkstį. Jie neturi įtakos būsenai ir rodomi tik peržiūrai.",
+      "Screening summary saved to client notes": "Tikrinimo santrauka išsaugota kliento pastabose.",
+      "Screening summary could not be saved": "Nepavyko išsaugoti tikrinimo santraukos kliento pastabose."
     },
     "selections": {
       "standingInstructions": {

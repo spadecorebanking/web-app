@@ -1373,7 +1373,9 @@
       "Discount Fee Adjustment": "Discount Fee Adjustment",
       "Adjust by Difference": "Adjust by Difference",
       "Open in map": "Open in map",
-      "Configure": "Configure"
+      "Configure": "Configure",
+      "Screen All": "Screen All",
+      "Save to Client Notes": "Save to Client Notes"
     },
     "catalogs": {
       "% Amount": "% Amount",
@@ -2407,7 +2409,10 @@
       "Edit Charge Amount": "Edit Charge Amount",
       "Edit Charge Date": "Edit Charge Date",
       "Edit Guarantor": "Edit Guarantor",
-      "Weekly schedule": "Weekly schedule"
+      "Weekly schedule": "Weekly schedule",
+      "Sanctions and PEP Screening": "Sanctions and PEP Screening",
+      "Returned Matches": "Returned Matches",
+      "Lower-Scored Candidates": "Lower-Scored Candidates"
     },
     "inputs": {
       "Breach Start Type": "Breach Start Type",
@@ -4142,7 +4147,6 @@
       "Not Screened": "Not Screened",
       "Possible Match": "Possible Match",
       "Schema": "Schema",
-      "Screened Value": "Screened Value",
       "Screening Error": "Screening Error",
       "Screening In Progress": "Screening In Progress",
       "Time Window": "Time Window",
@@ -4514,7 +4518,33 @@
       "Nominal Annual Interest Rate": "Nominal Annual Interest Rate",
       "Interest Rate Chart Overridden": "Interest Rate Chart Overridden",
       "Head Office": "Head office",
-      "Client number": "# client"
+      "Client number": "# client",
+      "Overall Status": "Overall Status",
+      "Clear": "Clear",
+      "Match": "Match",
+      "Dataset": "Dataset",
+      "Screened Attributes": "Screened Attributes",
+      "Topics": "Topics",
+      "Birth Dates": "Birth Dates",
+      "Countries": "Countries",
+      "Matched Client Address": "Matched Client Address",
+      "Linked Entities": "Linked Entities",
+      "Score Breakdown": "Score Breakdown",
+      "Sanctioned": "Sanctioned",
+      "Sanction-linked": "Sanction-linked",
+      "Politically Exposed Person": "Politically Exposed Person",
+      "Close Associate of PEP": "Close Associate of PEP",
+      "Politician": "Politician",
+      "Oligarch": "Oligarch",
+      "Crime": "Crime",
+      "Terrorism": "Terrorism",
+      "Financial Crime": "Financial Crime",
+      "Fraud": "Fraud",
+      "Wanted": "Wanted",
+      "Debarred": "Debarred",
+      "Person of Interest": "Person of Interest",
+      "Export Controlled": "Export Controlled",
+      "Regulatory Action": "Regulatory Action"
     },
     "links": {
       "Community": "Community",
@@ -6318,18 +6348,21 @@
       "No Upcoming Charges Found": "No Upcoming Charges Found",
       "Try a different search term": "Try a different search term",
       "unableToUpdateDiscount": "Unable to update discount.",
-      "No address data was found for this client": "No address data was found for this client.",
       "Client screening is not configured": "Client screening is not configured for this environment.",
       "No screening matches were found": "No screening matches were found.",
       "Returned Matches": "Returned Matches",
-      "Screen the selected client address against Yente": "Screen the selected client address against Yente.",
-      "Screen the selected client name against Yente": "Screen the selected client name against Yente.",
       "Screening request in progress": "Screening request in progress.",
       "validationSaved": "Validation data saved successfully.",
       "workingCapitalDiscountUpdated": "Working capital discount was updated successfully.",
       "identityDescriptionsUpdated": "Identity descriptions updated successfully.",
       "identityDescriptionsUpdateFailed": "Some identity descriptions failed to update.",
-      "unableToAdjustDiscountFee": "Unable to adjust the discount fee."
+      "unableToAdjustDiscountFee": "Unable to adjust the discount fee.",
+      "Screen this client against the configured watchlists": "Check this client's name and addresses against the configured sanctions and PEP watchlists. Results are not stored unless you save them to the client notes.",
+      "Name screening description": "Checks the client's name. Date of birth, gender and country are sent too, so namesakes with different details score lower.",
+      "Address screening description": "Checks each active address on file against addresses linked to listed people and companies.",
+      "Lower-scored candidates do not affect the status": "These candidates scored below the possible-match threshold. They do not affect the status and are shown for review only.",
+      "Screening summary saved to client notes": "The screening summary was saved to the client notes.",
+      "Screening summary could not be saved": "The screening summary could not be saved to the client notes."
     },
     "cbild": {
       "fields": {

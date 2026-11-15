@@ -967,7 +967,12 @@
     "validation.msg.WORKINGCAPITALLOAN.repaymentFrequencyType.override.not.allowed.by.product": "Este valor não pode ser substituído: o produto não o permite.",
     "validation.msg.wc.loan.transaction.adjust.by.delta.not.supported": "Este tipo de transação não pode ser ajustado por diferença num empréstimo de capital de giro.",
     "validation.msg.WORKINGCAPITALLOAN.transactionAmount.zero.amount.not.supported": "O valor do ajuste não pode ser zero.",
-    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "O ajuste não pode reduzir a transação abaixo de zero."
+    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "O ajuste não pode reduzir a transação abaixo de zero.",
+    "clientScreeningNotConfigured": "A verificação de clientes não está configurada para este ambiente.",
+    "clientScreeningMissingName": "Este cliente não tem dados de nome suficientes para executar a verificação.",
+    "clientScreeningMissingAddress": "Não foram encontrados endereços para este cliente.",
+    "clientScreeningRequestFailed": "O pedido de verificação falhou. Tente novamente.",
+    "clientScreeningAddressLookupFailed": "Não foi possível carregar os endereços do cliente para a verificação."
   },
   "labels": {
     "Mifos Reporting Plugin for Eclipse Birt": "Mifos Reporting Plugin for Eclipse Birt",
@@ -1364,7 +1369,11 @@
       "Discount Fee Adjustment": "Ajuste da Taxa de Desconto",
       "Adjust by Difference": "Ajustar por diferença",
       "Open in map": "Abrir no mapa",
-      "Configure": "Configurar"
+      "Configure": "Configurar",
+      "Screen All": "Verificar tudo",
+      "Screen Name": "Verificar nome",
+      "Screen Address": "Verificar endereço",
+      "Save to Client Notes": "Guardar nas notas do cliente"
     },
     "catalogs": {
       "% Amount": "Quantia",
@@ -2394,7 +2403,12 @@
       "Schedules": "Horários",
       "Reference": "Referência",
       "Create Savings Product": "Criar produto de poupança",
-      "Weekly schedule": "Horário semanal"
+      "Weekly schedule": "Horário semanal",
+      "Sanctions and PEP Screening": "Verificação de sanções e PEP",
+      "Name Screening": "Verificação do nome",
+      "Address Screening": "Verificação do endereço",
+      "Returned Matches": "Correspondências encontradas",
+      "Lower-Scored Candidates": "Candidatos com pontuação inferior"
     },
     "inputs": {
       "Breach Start Type": "Tipo de início de violação",
@@ -4494,7 +4508,41 @@
       "Label": "Rótulo",
       "Original Amount": "Valor original",
       "Resulting Amount": "Valor resultante",
-      "Head Office": "Sede"
+      "Head Office": "Sede",
+      "Overall Status": "Estado geral",
+      "Not Screened": "Não verificado",
+      "Screening In Progress": "Verificação em curso",
+      "Clear": "Sem correspondências",
+      "Possible Match": "Possível correspondência",
+      "Match": "Correspondência",
+      "Screening Error": "Erro de verificação",
+      "Last Screened": "Última verificação",
+      "Dataset": "Conjunto de dados",
+      "Datasets": "Conjuntos de dados",
+      "Screened Attributes": "Atributos verificados",
+      "Schema": "Esquema",
+      "Topics": "Tópicos",
+      "Birth Dates": "Datas de nascimento",
+      "Countries": "Países",
+      "Addresses": "Endereços",
+      "Matched Client Address": "Endereço do cliente correspondente",
+      "Linked Entities": "Entidades associadas",
+      "Score Breakdown": "Detalhe da pontuação",
+      "Sanctioned": "Sancionado",
+      "Sanction-linked": "Associado a sanções",
+      "Politically Exposed Person": "Pessoa politicamente exposta",
+      "Close Associate of PEP": "Associado próximo de PEP",
+      "Politician": "Político",
+      "Oligarch": "Oligarca",
+      "Crime": "Crime",
+      "Terrorism": "Terrorismo",
+      "Financial Crime": "Crime financeiro",
+      "Fraud": "Fraude",
+      "Wanted": "Procurado",
+      "Debarred": "Impedido",
+      "Person of Interest": "Pessoa de interesse",
+      "Export Controlled": "Sujeito a controlo de exportações",
+      "Regulatory Action": "Ação regulatória"
     },
     "links": {
       "Community": "Comunidade",
@@ -6302,7 +6350,16 @@
       "workingCapitalDiscountUpdated": "O desconto do empréstimo de fundo de maneio foi atualizado com sucesso.",
       "identityDescriptionsUpdated": "As descrições de identidade foram atualizadas com sucesso.",
       "identityDescriptionsUpdateFailed": "Algumas descrições de identidade não puderam ser atualizadas.",
-      "unableToAdjustDiscountFee": "Não foi possível ajustar a taxa de desconto."
+      "unableToAdjustDiscountFee": "Não foi possível ajustar a taxa de desconto.",
+      "Client screening is not configured": "A verificação de clientes não está configurada para este ambiente.",
+      "Screen this client against the configured watchlists": "Verifique o nome e os endereços deste cliente nas listas de sanções e PEP configuradas. Os resultados só são guardados se os guardar nas notas do cliente.",
+      "Name screening description": "Verifica o nome do cliente. A data de nascimento, o género e o país também são enviados, para que homónimos com dados diferentes tenham uma pontuação inferior.",
+      "Address screening description": "Verifica cada endereço ativo registado em relação a endereços associados a pessoas e empresas listadas.",
+      "Screening request in progress": "Pedido de verificação em curso.",
+      "No screening matches were found": "Não foram encontradas correspondências.",
+      "Lower-scored candidates do not affect the status": "Estes candidatos ficaram abaixo do limiar de possível correspondência. Não afetam o estado e são mostrados apenas para revisão.",
+      "Screening summary saved to client notes": "O resumo da verificação foi guardado nas notas do cliente.",
+      "Screening summary could not be saved": "Não foi possível guardar o resumo da verificação nas notas do cliente."
     },
     "selections": {
       "standingInstructions": {

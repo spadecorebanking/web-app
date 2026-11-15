@@ -969,7 +969,12 @@
     "validation.msg.WORKINGCAPITALLOAN.repaymentFrequencyType.override.not.allowed.by.product": "Tuto hodnotu nelze přepsat: produkt to nepovoluje.",
     "validation.msg.wc.loan.transaction.adjust.by.delta.not.supported": "Tento typ transakce nelze u úvěru na provozní kapitál upravit o rozdíl.",
     "validation.msg.WORKINGCAPITALLOAN.transactionAmount.zero.amount.not.supported": "Částka úpravy nesmí být nula.",
-    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "Úprava nesmí snížit transakci pod nulu."
+    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "Úprava nesmí snížit transakci pod nulu.",
+    "clientScreeningNotConfigured": "Prověřování klientů není pro toto prostředí nakonfigurováno.",
+    "clientScreeningMissingName": "Tento klient nemá dostatek údajů o jménu pro provedení prověrky.",
+    "clientScreeningMissingAddress": "Pro tohoto klienta nebyla nalezena žádná adresa.",
+    "clientScreeningRequestFailed": "Požadavek na prověrku selhal. Zkuste to prosím znovu.",
+    "clientScreeningAddressLookupFailed": "Adresy klienta se pro prověrku nepodařilo načíst."
   },
   "labels": {
     "version": {
@@ -1365,7 +1370,11 @@
       "Discount Fee Adjustment": "Úprava poplatku za slevu",
       "Adjust by Difference": "Upravit o rozdíl",
       "Open in map": "Otevřít na mapě",
-      "Configure": "Nastavit"
+      "Configure": "Nastavit",
+      "Screen All": "Prověřit vše",
+      "Screen Name": "Prověřit jméno",
+      "Screen Address": "Prověřit adresu",
+      "Save to Client Notes": "Uložit do poznámek klienta"
     },
     "catalogs": {
       "% Amount": "% částky",
@@ -2395,7 +2404,12 @@
       "Deposit Details": "Podrobnosti vkladu",
       "Services": "Služby",
       "Schedules": "Rozvrhy",
-      "Weekly schedule": "Týdenní rozvrh"
+      "Weekly schedule": "Týdenní rozvrh",
+      "Sanctions and PEP Screening": "Prověrka sankcí a PEP",
+      "Name Screening": "Prověrka jména",
+      "Address Screening": "Prověrka adresy",
+      "Returned Matches": "Nalezené shody",
+      "Lower-Scored Candidates": "Kandidáti s nižším skóre"
     },
     "inputs": {
       "Breach Start Type": "Typ začátku porušení",
@@ -4495,7 +4509,41 @@
       "Label": "Popisek",
       "Original Amount": "Původní částka",
       "Resulting Amount": "Výsledná částka",
-      "Head Office": "Hlavní pobočka"
+      "Head Office": "Hlavní pobočka",
+      "Overall Status": "Celkový stav",
+      "Not Screened": "Neprověřeno",
+      "Screening In Progress": "Probíhá prověrka",
+      "Clear": "Bez nálezu",
+      "Possible Match": "Možná shoda",
+      "Match": "Shoda",
+      "Screening Error": "Chyba prověrky",
+      "Last Screened": "Naposledy prověřeno",
+      "Dataset": "Datová sada",
+      "Datasets": "Datové sady",
+      "Screened Attributes": "Prověřované údaje",
+      "Schema": "Schéma",
+      "Topics": "Témata",
+      "Birth Dates": "Data narození",
+      "Countries": "Země",
+      "Addresses": "Adresy",
+      "Matched Client Address": "Odpovídající adresa klienta",
+      "Linked Entities": "Propojené subjekty",
+      "Score Breakdown": "Rozpis skóre",
+      "Sanctioned": "Pod sankcemi",
+      "Sanction-linked": "Napojení na sankce",
+      "Politically Exposed Person": "Politicky exponovaná osoba",
+      "Close Associate of PEP": "Blízký spolupracovník PEP",
+      "Politician": "Politik",
+      "Oligarch": "Oligarcha",
+      "Crime": "Trestná činnost",
+      "Terrorism": "Terorismus",
+      "Financial Crime": "Finanční kriminalita",
+      "Fraud": "Podvod",
+      "Wanted": "Hledaná osoba",
+      "Debarred": "Vyloučený",
+      "Person of Interest": "Sledovaná osoba",
+      "Export Controlled": "Podléhá kontrole vývozu",
+      "Regulatory Action": "Regulatorní opatření"
     },
     "links": {
       "Community": "Společenství",
@@ -6239,7 +6287,16 @@
       "workingCapitalDiscountUpdated": "Sleva provozního kapitálu byla úspěšně aktualizována.",
       "identityDescriptionsUpdated": "Popisy dokladů totožnosti byly úspěšně aktualizovány.",
       "identityDescriptionsUpdateFailed": "Některé popisy dokladů totožnosti se nepodařilo aktualizovat.",
-      "unableToAdjustDiscountFee": "Poplatek za slevu se nepodařilo upravit."
+      "unableToAdjustDiscountFee": "Poplatek za slevu se nepodařilo upravit.",
+      "Client screening is not configured": "Prověřování klientů není pro toto prostředí nakonfigurováno.",
+      "Screen this client against the configured watchlists": "Prověřte jméno a adresy tohoto klienta proti nakonfigurovaným sankčním seznamům a seznamům PEP. Výsledky se ukládají pouze tehdy, když je uložíte do poznámek klienta.",
+      "Name screening description": "Prověřuje jméno klienta. Odesílá se také datum narození, pohlaví a země, aby jmenovci s odlišnými údaji získali nižší skóre.",
+      "Address screening description": "Prověřuje každou aktivní evidovanou adresu proti adresám propojeným s uvedenými osobami a společnostmi.",
+      "Screening request in progress": "Probíhá požadavek na prověrku.",
+      "No screening matches were found": "Nebyly nalezeny žádné shody.",
+      "Lower-scored candidates do not affect the status": "Tito kandidáti mají skóre pod prahem možné shody. Neovlivňují stav a zobrazují se pouze ke kontrole.",
+      "Screening summary saved to client notes": "Souhrn prověrky byl uložen do poznámek klienta.",
+      "Screening summary could not be saved": "Souhrn prověrky se nepodařilo uložit do poznámek klienta."
     },
     "selections": {
       "standingInstructions": {

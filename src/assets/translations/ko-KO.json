@@ -967,7 +967,12 @@
     "validation.msg.WORKINGCAPITALLOAN.repaymentFrequencyType.override.not.allowed.by.product": "이 값은 변경할 수 없습니다: 상품에서 허용하지 않습니다.",
     "validation.msg.wc.loan.transaction.adjust.by.delta.not.supported": "이 거래 유형은 운전자본 대출에서 차액으로 조정할 수 없습니다.",
     "validation.msg.WORKINGCAPITALLOAN.transactionAmount.zero.amount.not.supported": "조정 금액은 0일 수 없습니다.",
-    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "조정으로 거래를 0 미만으로 줄일 수 없습니다."
+    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "조정으로 거래를 0 미만으로 줄일 수 없습니다.",
+    "clientScreeningNotConfigured": "이 환경에는 고객 심사가 구성되어 있지 않습니다.",
+    "clientScreeningMissingName": "이 고객은 심사를 실행할 이름 정보가 충분하지 않습니다.",
+    "clientScreeningMissingAddress": "이 고객의 주소 정보를 찾을 수 없습니다.",
+    "clientScreeningRequestFailed": "심사 요청에 실패했습니다. 다시 시도하세요.",
+    "clientScreeningAddressLookupFailed": "심사를 위한 고객 주소 정보를 불러올 수 없습니다."
   },
   "labels": {
     "Mifos Reporting Plugin for Eclipse Birt": "Mifos Reporting Plugin for Eclipse Birt",
@@ -1364,7 +1369,11 @@
       "Discount Fee Adjustment": "할인 수수료 조정",
       "Adjust by Difference": "차액으로 조정",
       "Open in map": "지도에서 열기",
-      "Configure": "설정"
+      "Configure": "설정",
+      "Screen All": "전체 심사",
+      "Screen Name": "이름 심사",
+      "Screen Address": "주소 심사",
+      "Save to Client Notes": "고객 메모에 저장"
     },
     "catalogs": {
       "% Amount": "양",
@@ -2394,7 +2403,12 @@
       "Services": "서비스",
       "Schedules": "운영 일정",
       "Reference": "참조",
-      "Weekly schedule": "주간 일정"
+      "Weekly schedule": "주간 일정",
+      "Sanctions and PEP Screening": "제재 및 PEP 심사",
+      "Name Screening": "이름 심사",
+      "Address Screening": "주소 심사",
+      "Returned Matches": "검색된 일치 항목",
+      "Lower-Scored Candidates": "낮은 점수 후보"
     },
     "inputs": {
       "Breach Start Type": "위반 시작 유형",
@@ -4494,7 +4508,41 @@
       "Label": "항목",
       "Original Amount": "원래 금액",
       "Resulting Amount": "결과 금액",
-      "Head Office": "본점"
+      "Head Office": "본점",
+      "Overall Status": "전체 상태",
+      "Not Screened": "심사 안 함",
+      "Screening In Progress": "심사 진행 중",
+      "Clear": "해당 없음",
+      "Possible Match": "일치 가능성",
+      "Match": "일치",
+      "Screening Error": "심사 오류",
+      "Last Screened": "최근 심사",
+      "Dataset": "데이터 세트",
+      "Datasets": "데이터 세트",
+      "Screened Attributes": "심사한 속성",
+      "Schema": "스키마",
+      "Topics": "주제",
+      "Birth Dates": "생년월일",
+      "Countries": "국가",
+      "Addresses": "주소",
+      "Matched Client Address": "일치한 고객 주소",
+      "Linked Entities": "연결된 개체",
+      "Score Breakdown": "점수 상세",
+      "Sanctioned": "제재 대상",
+      "Sanction-linked": "제재 연관",
+      "Politically Exposed Person": "정치적 주요 인물",
+      "Close Associate of PEP": "PEP 측근",
+      "Politician": "정치인",
+      "Oligarch": "올리가르히",
+      "Crime": "범죄",
+      "Terrorism": "테러",
+      "Financial Crime": "금융 범죄",
+      "Fraud": "사기",
+      "Wanted": "수배",
+      "Debarred": "거래 제한",
+      "Person of Interest": "관심 인물",
+      "Export Controlled": "수출 통제",
+      "Regulatory Action": "규제 조치"
     },
     "links": {
       "Community": "지역 사회",
@@ -6302,7 +6350,16 @@
       "workingCapitalDiscountUpdated": "운전자금 대출 할인율이 성공적으로 업데이트되었습니다.",
       "identityDescriptionsUpdated": "신분증 설명이 성공적으로 수정되었습니다.",
       "identityDescriptionsUpdateFailed": "일부 신분증 설명을 수정하지 못했습니다.",
-      "unableToAdjustDiscountFee": "할인 수수료를 조정할 수 없습니다."
+      "unableToAdjustDiscountFee": "할인 수수료를 조정할 수 없습니다.",
+      "Client screening is not configured": "이 환경에는 고객 심사가 구성되어 있지 않습니다.",
+      "Screen this client against the configured watchlists": "구성된 제재 및 PEP 명단과 이 고객의 이름과 주소를 대조합니다. 결과는 고객 메모에 저장하지 않으면 보관되지 않습니다.",
+      "Name screening description": "고객 이름을 심사합니다. 생년월일, 성별, 국가도 함께 전송되어 정보가 다른 동명이인은 낮은 점수를 받습니다.",
+      "Address screening description": "등록된 각 활성 주소를 명단에 오른 개인 및 회사와 연결된 주소와 대조합니다.",
+      "Screening request in progress": "심사 요청 진행 중입니다.",
+      "No screening matches were found": "일치 항목이 없습니다.",
+      "Lower-scored candidates do not affect the status": "이 후보들은 일치 가능성 기준점보다 낮은 점수를 받았습니다. 상태에 영향을 주지 않으며 검토용으로만 표시됩니다.",
+      "Screening summary saved to client notes": "심사 요약이 고객 메모에 저장되었습니다.",
+      "Screening summary could not be saved": "심사 요약을 고객 메모에 저장할 수 없습니다."
     },
     "selections": {
       "standingInstructions": {

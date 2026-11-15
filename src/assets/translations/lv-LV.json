@@ -967,7 +967,12 @@
     "validation.msg.WORKINGCAPITALLOAN.repaymentFrequencyType.override.not.allowed.by.product": "Šo vērtību nevar mainīt: produkts to neatļauj.",
     "validation.msg.wc.loan.transaction.adjust.by.delta.not.supported": "Šāda veida darījumu apgrozāmā kapitāla aizdevumam nevar koriģēt pēc starpības.",
     "validation.msg.WORKINGCAPITALLOAN.transactionAmount.zero.amount.not.supported": "Korekcijas summa nedrīkst būt nulle.",
-    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "Korekcija nedrīkst samazināt darījumu zem nulles."
+    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "Korekcija nedrīkst samazināt darījumu zem nulles.",
+    "clientScreeningNotConfigured": "Klientu pārbaude šai videi nav konfigurēta.",
+    "clientScreeningMissingName": "Šim klientam nav pietiekami daudz vārda datu pārbaudes veikšanai.",
+    "clientScreeningMissingAddress": "Šim klientam netika atrasti adreses dati.",
+    "clientScreeningRequestFailed": "Pārbaudes pieprasījums neizdevās. Lūdzu, mēģiniet vēlreiz.",
+    "clientScreeningAddressLookupFailed": "Neizdevās ielādēt klienta adreses pārbaudei."
   },
   "labels": {
     "Mifos Reporting Plugin for Eclipse Birt": "Mifos Reporting Plugin for Eclipse Birt",
@@ -1364,7 +1369,11 @@
       "Discount Fee Adjustment": "Atlaides maksas korekcija",
       "Adjust by Difference": "Koriģēt pēc starpības",
       "Open in map": "Atvērt kartē",
-      "Configure": "Konfigurēt"
+      "Configure": "Konfigurēt",
+      "Screen All": "Pārbaudīt visu",
+      "Screen Name": "Pārbaudīt vārdu",
+      "Screen Address": "Pārbaudīt adresi",
+      "Save to Client Notes": "Saglabāt klienta piezīmēs"
     },
     "catalogs": {
       "% Amount": "Summa",
@@ -2394,7 +2403,12 @@
       "Services": "Pakalpojumi",
       "Schedules": "Grafiki",
       "Reference": "Atsauce",
-      "Weekly schedule": "Nedēļas grafiks"
+      "Weekly schedule": "Nedēļas grafiks",
+      "Sanctions and PEP Screening": "Sankciju un PEP pārbaude",
+      "Name Screening": "Vārda pārbaude",
+      "Address Screening": "Adreses pārbaude",
+      "Returned Matches": "Atrastās atbilstības",
+      "Lower-Scored Candidates": "Kandidāti ar zemāku vērtējumu"
     },
     "inputs": {
       "Breach Start Type": "Pārkāpuma sākuma tips",
@@ -4494,7 +4508,41 @@
       "Label": "Nosaukums",
       "Original Amount": "Sākotnējā summa",
       "Resulting Amount": "Rezultējošā summa",
-      "Head Office": "Galvenais birojs"
+      "Head Office": "Galvenais birojs",
+      "Overall Status": "Kopējais statuss",
+      "Not Screened": "Nav pārbaudīts",
+      "Screening In Progress": "Notiek pārbaude",
+      "Clear": "Nav atbilstību",
+      "Possible Match": "Iespējama atbilstība",
+      "Match": "Atbilstība",
+      "Screening Error": "Pārbaudes kļūda",
+      "Last Screened": "Pēdējā pārbaude",
+      "Dataset": "Datu kopa",
+      "Datasets": "Datu kopas",
+      "Screened Attributes": "Pārbaudītie atribūti",
+      "Schema": "Shēma",
+      "Topics": "Tēmas",
+      "Birth Dates": "Dzimšanas datumi",
+      "Countries": "Valstis",
+      "Addresses": "Adreses",
+      "Matched Client Address": "Atbilstošā klienta adrese",
+      "Linked Entities": "Saistītās vienības",
+      "Score Breakdown": "Vērtējuma sadalījums",
+      "Sanctioned": "Piemērotas sankcijas",
+      "Sanction-linked": "Saistīts ar sankcijām",
+      "Politically Exposed Person": "Politiski nozīmīga persona",
+      "Close Associate of PEP": "PEP tuvs sadarbības partneris",
+      "Politician": "Politiķis",
+      "Oligarch": "Oligarhs",
+      "Crime": "Noziedzība",
+      "Terrorism": "Terorisms",
+      "Financial Crime": "Finanšu noziegumi",
+      "Fraud": "Krāpšana",
+      "Wanted": "Meklēts",
+      "Debarred": "Izslēgts",
+      "Person of Interest": "Interesējošā persona",
+      "Export Controlled": "Pakļauts eksporta kontrolei",
+      "Regulatory Action": "Regulatīvs pasākums"
     },
     "links": {
       "Community": "kopiena",
@@ -6302,7 +6350,16 @@
       "workingCapitalDiscountUpdated": "Apgrozāmo līdzekļu aizdevuma atlaide ir veiksmīgi atjaunināta.",
       "identityDescriptionsUpdated": "Identitātes dokumentu apraksti veiksmīgi atjaunināti.",
       "identityDescriptionsUpdateFailed": "Dažus identitātes dokumentu aprakstus neizdevās atjaunināt.",
-      "unableToAdjustDiscountFee": "Neizdevās koriģēt atlaides maksu."
+      "unableToAdjustDiscountFee": "Neizdevās koriģēt atlaides maksu.",
+      "Client screening is not configured": "Klientu pārbaude šai videi nav konfigurēta.",
+      "Screen this client against the configured watchlists": "Pārbaudiet šī klienta vārdu un adreses pret konfigurētajiem sankciju un PEP sarakstiem. Rezultāti tiek saglabāti tikai tad, ja tos saglabājat klienta piezīmēs.",
+      "Name screening description": "Pārbauda klienta vārdu. Tiek nosūtīts arī dzimšanas datums, dzimums un valsts, lai vārdabrāļi ar atšķirīgiem datiem saņemtu zemāku vērtējumu.",
+      "Address screening description": "Pārbauda katru aktīvo reģistrēto adresi pret adresēm, kas saistītas ar sarakstos iekļautām personām un uzņēmumiem.",
+      "Screening request in progress": "Notiek pārbaudes pieprasījums.",
+      "No screening matches were found": "Atbilstības netika atrastas.",
+      "Lower-scored candidates do not affect the status": "Šo kandidātu vērtējums ir zem iespējamās atbilstības sliekšņa. Tie neietekmē statusu un tiek rādīti tikai pārskatīšanai.",
+      "Screening summary saved to client notes": "Pārbaudes kopsavilkums saglabāts klienta piezīmēs.",
+      "Screening summary could not be saved": "Neizdevās saglabāt pārbaudes kopsavilkumu klienta piezīmēs."
     },
     "selections": {
       "standingInstructions": {

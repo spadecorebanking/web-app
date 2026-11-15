@@ -967,7 +967,12 @@
     "validation.msg.WORKINGCAPITALLOAN.repaymentFrequencyType.override.not.allowed.by.product": "Thamani hii haiwezi kubadilishwa: bidhaa hairuhusu.",
     "validation.msg.wc.loan.transaction.adjust.by.delta.not.supported": "Aina hii ya muamala haiwezi kurekebishwa kwa tofauti kwenye mkopo wa mtaji wa kazi.",
     "validation.msg.WORKINGCAPITALLOAN.transactionAmount.zero.amount.not.supported": "Kiasi cha marekebisho hakiwezi kuwa sifuri.",
-    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "Marekebisho hayawezi kupunguza muamala chini ya sifuri."
+    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "Marekebisho hayawezi kupunguza muamala chini ya sifuri.",
+    "clientScreeningNotConfigured": "Ukaguzi wa wateja haujasanidiwa kwa mazingira haya.",
+    "clientScreeningMissingName": "Mteja huyu hana taarifa za kutosha za jina ili kufanya ukaguzi.",
+    "clientScreeningMissingAddress": "Hakuna taarifa za anwani zilizopatikana kwa mteja huyu.",
+    "clientScreeningRequestFailed": "Ombi la ukaguzi limeshindwa. Tafadhali jaribu tena.",
+    "clientScreeningAddressLookupFailed": "Anwani za mteja hazikuweza kupakiwa kwa ajili ya ukaguzi."
   },
   "labels": {
     "Mifos Reporting Plugin for Eclipse Birt": "Mifos Reporting Plugin for Eclipse Birt",
@@ -1364,7 +1369,11 @@
       "Discount Fee Adjustment": "Marekebisho ya Ada ya Punguzo",
       "Adjust by Difference": "Rekebisha kwa Tofauti",
       "Open in map": "Fungua kwenye ramani",
-      "Configure": "Sanidi"
+      "Configure": "Sanidi",
+      "Screen All": "Kagua Yote",
+      "Screen Name": "Kagua Jina",
+      "Screen Address": "Kagua Anwani",
+      "Save to Client Notes": "Hifadhi kwenye Maelezo ya Mteja"
     },
     "catalogs": {
       "% Amount": "Kiasi",
@@ -2394,7 +2403,12 @@
       "Schedules": "Ratiba",
       "Reference": "Rejea",
       "Create Savings Product": "Unda Bidhaa ya Akiba",
-      "Weekly schedule": "Ratiba ya wiki"
+      "Weekly schedule": "Ratiba ya wiki",
+      "Sanctions and PEP Screening": "Ukaguzi wa Vikwazo na PEP",
+      "Name Screening": "Ukaguzi wa Jina",
+      "Address Screening": "Ukaguzi wa Anwani",
+      "Returned Matches": "Mechi Zilizopatikana",
+      "Lower-Scored Candidates": "Wagombea wenye Alama za Chini"
     },
     "inputs": {
       "Breach Start Type": "Aina ya kuanza kwa ukiukaji",
@@ -4494,7 +4508,41 @@
       "Label": "Lebo",
       "Original Amount": "Kiasi Asilia",
       "Resulting Amount": "Kiasi Kinachotokana",
-      "Head Office": "Ofisi kuu"
+      "Head Office": "Ofisi kuu",
+      "Overall Status": "Hali ya Jumla",
+      "Not Screened": "Haijakaguliwa",
+      "Screening In Progress": "Ukaguzi Unaendelea",
+      "Clear": "Hakuna Mechi",
+      "Possible Match": "Mechi Inayowezekana",
+      "Match": "Mechi",
+      "Screening Error": "Hitilafu ya Ukaguzi",
+      "Last Screened": "Ilikaguliwa Mwisho",
+      "Dataset": "Seti ya Data",
+      "Datasets": "Seti za Data",
+      "Screened Attributes": "Sifa Zilizokaguliwa",
+      "Schema": "Muundo",
+      "Topics": "Mada",
+      "Birth Dates": "Tarehe za Kuzaliwa",
+      "Countries": "Nchi",
+      "Addresses": "Anwani",
+      "Matched Client Address": "Anwani ya Mteja Iliyolingana",
+      "Linked Entities": "Taasisi Zilizounganishwa",
+      "Score Breakdown": "Uchanganuzi wa Alama",
+      "Sanctioned": "Amewekewa Vikwazo",
+      "Sanction-linked": "Anahusishwa na Vikwazo",
+      "Politically Exposed Person": "Mtu Mwenye Ushawishi wa Kisiasa",
+      "Close Associate of PEP": "Mshirika wa Karibu wa PEP",
+      "Politician": "Mwanasiasa",
+      "Oligarch": "Oligaki",
+      "Crime": "Uhalifu",
+      "Terrorism": "Ugaidi",
+      "Financial Crime": "Uhalifu wa Kifedha",
+      "Fraud": "Ulaghai",
+      "Wanted": "Anatafutwa",
+      "Debarred": "Amezuiliwa",
+      "Person of Interest": "Mtu Anayefuatiliwa",
+      "Export Controlled": "Chini ya Udhibiti wa Mauzo ya Nje",
+      "Regulatory Action": "Hatua ya Udhibiti"
     },
     "links": {
       "Community": "Jumuiya",
@@ -6302,7 +6350,16 @@
       "workingCapitalDiscountUpdated": "Punguzo la mkopo wa mtaji wa kufanya kazi limefanikiwa kusasishwa.",
       "identityDescriptionsUpdated": "Maelezo ya vitambulisho yamesasishwa kwa mafanikio.",
       "identityDescriptionsUpdateFailed": "Baadhi ya maelezo ya vitambulisho hayakuweza kusasishwa.",
-      "unableToAdjustDiscountFee": "Imeshindwa kurekebisha ada ya punguzo."
+      "unableToAdjustDiscountFee": "Imeshindwa kurekebisha ada ya punguzo.",
+      "Client screening is not configured": "Ukaguzi wa wateja haujasanidiwa kwa mazingira haya.",
+      "Screen this client against the configured watchlists": "Kagua jina na anwani za mteja huyu dhidi ya orodha za vikwazo na PEP zilizosanidiwa. Matokeo hayahifadhiwi isipokuwa uyahifadhi kwenye maelezo ya mteja.",
+      "Name screening description": "Hukagua jina la mteja. Tarehe ya kuzaliwa, jinsia na nchi pia hutumwa, ili watu wenye jina sawa lakini taarifa tofauti wapate alama za chini.",
+      "Address screening description": "Hukagua kila anwani hai iliyosajiliwa dhidi ya anwani zinazohusishwa na watu na kampuni zilizoorodheshwa.",
+      "Screening request in progress": "Ombi la ukaguzi linaendelea.",
+      "No screening matches were found": "Hakuna mechi zilizopatikana.",
+      "Lower-scored candidates do not affect the status": "Wagombea hawa wana alama chini ya kiwango cha mechi inayowezekana. Hawaathiri hali na wanaonyeshwa kwa ukaguzi tu.",
+      "Screening summary saved to client notes": "Muhtasari wa ukaguzi umehifadhiwa kwenye maelezo ya mteja.",
+      "Screening summary could not be saved": "Muhtasari wa ukaguzi haukuweza kuhifadhiwa kwenye maelezo ya mteja."
     },
     "selections": {
       "standingInstructions": {

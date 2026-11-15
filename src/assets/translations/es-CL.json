@@ -967,7 +967,12 @@
     "validation.msg.WORKINGCAPITALLOAN.repaymentFrequencyType.override.not.allowed.by.product": "Este valor no se puede modificar: el producto no lo permite.",
     "validation.msg.wc.loan.transaction.adjust.by.delta.not.supported": "Este tipo de transacción no se puede ajustar por diferencia en un préstamo de Capital de Trabajo.",
     "validation.msg.WORKINGCAPITALLOAN.transactionAmount.zero.amount.not.supported": "El monto del ajuste no puede ser cero.",
-    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "El ajuste no puede reducir la transacción por debajo de cero."
+    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "El ajuste no puede reducir la transacción por debajo de cero.",
+    "clientScreeningNotConfigured": "La verificación de clientes no está configurada para este entorno.",
+    "clientScreeningMissingName": "Este cliente no tiene suficientes datos de nombre para realizar la verificación.",
+    "clientScreeningMissingAddress": "No se encontraron direcciones para este cliente.",
+    "clientScreeningRequestFailed": "La solicitud de verificación falló. Inténtelo de nuevo.",
+    "clientScreeningAddressLookupFailed": "No se pudieron cargar las direcciones del cliente para la verificación."
   },
   "labels": {
     "Mifos Reporting Plugin for Eclipse Birt": "Mifos Reporting Plugin for Eclipse Birt",
@@ -1364,7 +1369,11 @@
       "Discount Fee Adjustment": "Ajuste de Comisión de Descuento",
       "Adjust by Difference": "Ajustar por diferencia",
       "Open in map": "Abrir en mapa",
-      "Configure": "Configurar"
+      "Configure": "Configurar",
+      "Screen All": "Verificar todo",
+      "Screen Name": "Verificar nombre",
+      "Screen Address": "Verificar dirección",
+      "Save to Client Notes": "Guardar en notas del cliente"
     },
     "catalogs": {
       "% Amount": "% Monto",
@@ -2394,7 +2403,12 @@
       "Services": "Servicios",
       "Schedules": "Horarios",
       "Reference": "Referencia",
-      "Weekly schedule": "Horario semanal"
+      "Weekly schedule": "Horario semanal",
+      "Sanctions and PEP Screening": "Verificación de sanciones y PEP",
+      "Name Screening": "Verificación de nombre",
+      "Address Screening": "Verificación de dirección",
+      "Returned Matches": "Coincidencias encontradas",
+      "Lower-Scored Candidates": "Candidatos con puntuación menor"
     },
     "inputs": {
       "Breach Start Type": "Tipo de inicio de incumplimiento",
@@ -4494,7 +4508,41 @@
       "Label": "Etiqueta",
       "Original Amount": "Monto original",
       "Resulting Amount": "Monto resultante",
-      "Head Office": "Sucursal matriz"
+      "Head Office": "Sucursal matriz",
+      "Overall Status": "Estado general",
+      "Not Screened": "No verificado",
+      "Screening In Progress": "Verificación en curso",
+      "Clear": "Sin coincidencias",
+      "Possible Match": "Posible coincidencia",
+      "Match": "Coincidencia",
+      "Screening Error": "Error de verificación",
+      "Last Screened": "Última verificación",
+      "Dataset": "Conjunto de datos",
+      "Datasets": "Conjuntos de datos",
+      "Screened Attributes": "Atributos verificados",
+      "Schema": "Esquema",
+      "Topics": "Temas",
+      "Birth Dates": "Fechas de nacimiento",
+      "Countries": "Países",
+      "Addresses": "Direcciones",
+      "Matched Client Address": "Dirección del cliente coincidente",
+      "Linked Entities": "Entidades vinculadas",
+      "Score Breakdown": "Desglose de la puntuación",
+      "Sanctioned": "Sancionado",
+      "Sanction-linked": "Vinculado a sanciones",
+      "Politically Exposed Person": "Persona expuesta políticamente",
+      "Close Associate of PEP": "Asociado cercano de PEP",
+      "Politician": "Político",
+      "Oligarch": "Oligarca",
+      "Crime": "Delito",
+      "Terrorism": "Terrorismo",
+      "Financial Crime": "Delito financiero",
+      "Fraud": "Fraude",
+      "Wanted": "Buscado",
+      "Debarred": "Inhabilitado",
+      "Person of Interest": "Persona de interés",
+      "Export Controlled": "Sujeto a control de exportaciones",
+      "Regulatory Action": "Acción regulatoria"
     },
     "links": {
       "Community": "Comunidad",
@@ -6302,7 +6350,16 @@
       "workingCapitalDiscountUpdated": "El descuento del préstamo de capital de trabajo se actualizó correctamente.",
       "identityDescriptionsUpdated": "Las descripciones de identidad se actualizaron correctamente.",
       "identityDescriptionsUpdateFailed": "Algunas descripciones de identidad no se pudieron actualizar.",
-      "unableToAdjustDiscountFee": "No se pudo ajustar la comisión de descuento."
+      "unableToAdjustDiscountFee": "No se pudo ajustar la comisión de descuento.",
+      "Client screening is not configured": "La verificación de clientes no está configurada para este entorno.",
+      "Screen this client against the configured watchlists": "Verifique el nombre y las direcciones de este cliente contra las listas de sanciones y PEP configuradas. Los resultados no se guardan a menos que los guarde en las notas del cliente.",
+      "Name screening description": "Verifica el nombre del cliente. También se envían la fecha de nacimiento, el género y el país, para que los homónimos con datos distintos obtengan una puntuación menor.",
+      "Address screening description": "Verifica cada dirección activa registrada contra direcciones vinculadas a personas y empresas listadas.",
+      "Screening request in progress": "Solicitud de verificación en curso.",
+      "No screening matches were found": "No se encontraron coincidencias.",
+      "Lower-scored candidates do not affect the status": "Estos candidatos obtuvieron una puntuación inferior al umbral de posible coincidencia. No afectan el estado y se muestran solo para revisión.",
+      "Screening summary saved to client notes": "El resumen de la verificación se guardó en las notas del cliente.",
+      "Screening summary could not be saved": "No se pudo guardar el resumen de la verificación en las notas del cliente."
     },
     "selections": {
       "standingInstructions": {

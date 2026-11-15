@@ -967,7 +967,12 @@
     "validation.msg.WORKINGCAPITALLOAN.repaymentFrequencyType.override.not.allowed.by.product": "यो मान परिवर्तन गर्न सकिँदैन: उत्पादनले अनुमति दिँदैन।",
     "validation.msg.wc.loan.transaction.adjust.by.delta.not.supported": "यो कारोबार प्रकार कार्यशील पुँजी ऋणमा फरकद्वारा समायोजन गर्न सकिँदैन।",
     "validation.msg.WORKINGCAPITALLOAN.transactionAmount.zero.amount.not.supported": "समायोजन रकम शून्य हुन सक्दैन।",
-    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "समायोजनले कारोबारलाई शून्यभन्दा तल घटाउन सक्दैन।"
+    "validation.msg.WORKINGCAPITALLOAN.transactionAmount.delta.amount.should.not.result.in.negative": "समायोजनले कारोबारलाई शून्यभन्दा तल घटाउन सक्दैन।",
+    "clientScreeningNotConfigured": "यस वातावरणका लागि ग्राहक जाँच कन्फिगर गरिएको छैन।",
+    "clientScreeningMissingName": "यो ग्राहकसँग जाँच चलाउन पर्याप्त नाम विवरण छैन।",
+    "clientScreeningMissingAddress": "यो ग्राहकको ठेगाना विवरण फेला परेन।",
+    "clientScreeningRequestFailed": "जाँच अनुरोध असफल भयो। कृपया फेरि प्रयास गर्नुहोस्।",
+    "clientScreeningAddressLookupFailed": "जाँचका लागि ग्राहकको ठेगाना विवरण लोड गर्न सकिएन।"
   },
   "labels": {
     "Mifos Reporting Plugin for Eclipse Birt": "Mifos Reporting Plugin for Eclipse Birt",
@@ -1364,7 +1369,11 @@
       "Discount Fee Adjustment": "छुट शुल्क समायोजन",
       "Adjust by Difference": "फरकद्वारा समायोजन",
       "Open in map": "नक्सामा खोल्नुहोस्",
-      "Configure": "कन्फिगर गर्नुहोस्"
+      "Configure": "कन्फिगर गर्नुहोस्",
+      "Screen All": "सबै जाँच्नुहोस्",
+      "Screen Name": "नाम जाँच्नुहोस्",
+      "Screen Address": "ठेगाना जाँच्नुहोस्",
+      "Save to Client Notes": "ग्राहक टिप्पणीमा सुरक्षित गर्नुहोस्"
     },
     "catalogs": {
       "% Amount": "रकम",
@@ -2394,7 +2403,12 @@
       "Services": "सेवाहरू",
       "Schedules": "तालिकाहरू",
       "Reference": "सन्दर्भ",
-      "Weekly schedule": "साप्ताहिक समयतालिका"
+      "Weekly schedule": "साप्ताहिक समयतालिका",
+      "Sanctions and PEP Screening": "प्रतिबन्ध र PEP जाँच",
+      "Name Screening": "नाम जाँच",
+      "Address Screening": "ठेगाना जाँच",
+      "Returned Matches": "फेला परेका मिलानहरू",
+      "Lower-Scored Candidates": "कम अंक भएका उम्मेदवारहरू"
     },
     "inputs": {
       "Breach Start Type": "उल्लङ्घन सुरु प्रकार",
@@ -4494,7 +4508,41 @@
       "Label": "लेबल",
       "Original Amount": "मूल रकम",
       "Resulting Amount": "परिणामी रकम",
-      "Head Office": "प्रधान कार्यालय"
+      "Head Office": "प्रधान कार्यालय",
+      "Overall Status": "समग्र स्थिति",
+      "Not Screened": "जाँच गरिएको छैन",
+      "Screening In Progress": "जाँच हुँदैछ",
+      "Clear": "कुनै मिलान छैन",
+      "Possible Match": "सम्भावित मिलान",
+      "Match": "मिलान",
+      "Screening Error": "जाँच त्रुटि",
+      "Last Screened": "अन्तिम जाँच",
+      "Dataset": "डाटासेट",
+      "Datasets": "डाटासेटहरू",
+      "Screened Attributes": "जाँच गरिएका विवरणहरू",
+      "Schema": "स्किमा",
+      "Topics": "विषयहरू",
+      "Birth Dates": "जन्म मितिहरू",
+      "Countries": "देशहरू",
+      "Addresses": "ठेगानाहरू",
+      "Matched Client Address": "मिलेको ग्राहक ठेगाना",
+      "Linked Entities": "सम्बन्धित संस्थाहरू",
+      "Score Breakdown": "अंक विवरण",
+      "Sanctioned": "प्रतिबन्धित",
+      "Sanction-linked": "प्रतिबन्धसँग सम्बन्धित",
+      "Politically Exposed Person": "राजनीतिक रूपमा प्रभावशाली व्यक्ति",
+      "Close Associate of PEP": "PEP का नजिकका सहयोगी",
+      "Politician": "राजनीतिज्ञ",
+      "Oligarch": "कुलीनतन्त्री",
+      "Crime": "अपराध",
+      "Terrorism": "आतंकवाद",
+      "Financial Crime": "वित्तीय अपराध",
+      "Fraud": "ठगी",
+      "Wanted": "वान्टेड",
+      "Debarred": "निषेधित",
+      "Person of Interest": "चासोको व्यक्ति",
+      "Export Controlled": "निर्यात नियन्त्रित",
+      "Regulatory Action": "नियामक कारबाही"
     },
     "links": {
       "Community": "समुदाय",
@@ -6302,7 +6350,16 @@
       "workingCapitalDiscountUpdated": "कार्यशील पूँजी ऋणको छुट सफलतापूर्वक अपडेट गरिएको छ।",
       "identityDescriptionsUpdated": "पहिचान विवरणहरू सफलतापूर्वक अद्यावधिक भए।",
       "identityDescriptionsUpdateFailed": "केही पहिचान विवरणहरू अद्यावधिक गर्न असफल भए।",
-      "unableToAdjustDiscountFee": "छुट शुल्क समायोजन गर्न सकिएन।"
+      "unableToAdjustDiscountFee": "छुट शुल्क समायोजन गर्न सकिएन।",
+      "Client screening is not configured": "यस वातावरणका लागि ग्राहक जाँच कन्फिगर गरिएको छैन।",
+      "Screen this client against the configured watchlists": "यो ग्राहकको नाम र ठेगानाहरू कन्फिगर गरिएका प्रतिबन्ध र PEP सूचीहरूसँग जाँच्नुहोस्। तपाईंले ग्राहक टिप्पणीमा सुरक्षित नगरेसम्म नतिजाहरू राखिँदैनन्।",
+      "Name screening description": "ग्राहकको नाम जाँच गर्छ। जन्म मिति, लिङ्ग र देश पनि पठाइन्छ, जसले फरक विवरण भएका उस्तै नामका व्यक्तिहरूलाई कम अंक दिन्छ।",
+      "Address screening description": "दर्ता भएका प्रत्येक सक्रिय ठेगानालाई सूचीमा रहेका व्यक्ति र कम्पनीहरूसँग सम्बन्धित ठेगानाहरूसँग जाँच गर्छ।",
+      "Screening request in progress": "जाँच अनुरोध हुँदैछ।",
+      "No screening matches were found": "कुनै मिलान फेला परेन।",
+      "Lower-scored candidates do not affect the status": "यी उम्मेदवारहरूको अंक सम्भावित मिलानको सीमाभन्दा कम छ। यिनले स्थितिमा असर गर्दैनन् र समीक्षाका लागि मात्र देखाइन्छन्।",
+      "Screening summary saved to client notes": "जाँच सारांश ग्राहक टिप्पणीमा सुरक्षित गरियो।",
+      "Screening summary could not be saved": "जाँच सारांश ग्राहक टिप्पणीमा सुरक्षित गर्न सकिएन।"
     },
     "selections": {
       "standingInstructions": {

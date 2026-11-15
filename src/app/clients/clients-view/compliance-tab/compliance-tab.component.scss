@@ -1,0 +1,237 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+@use 'assets/styles/colours' as c;
+
+/*
+ * Neutral surfaces use currentColor-based tokens so the tab stays readable in
+ * the dark theme without a separate palette. Status colours come from the
+ * shared colour map.
+ */
+:host {
+  display: block;
+  padding: 16px 0;
+
+  --compliance-border: rgb(0 0 0 / 12%);
+  --compliance-neutral-bg: rgb(0 0 0 / 6%);
+  --compliance-muted: rgb(0 0 0 / 60%);
+}
+
+:host-context(.dark-theme) {
+  --compliance-border: rgb(255 255 255 / 16%);
+  --compliance-neutral-bg: rgb(255 255 255 / 8%);
+  --compliance-muted: rgb(255 255 255 / 64%);
+}
+
+.compliance-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid var(--compliance-border);
+  border-radius: 8px;
+
+  h3 {
+    margin: 0 0 8px;
+  }
+
+  p {
+    margin: 0 0 8px;
+    color: var(--compliance-muted);
+  }
+
+  @media (width <= 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  button mat-icon {
+    margin-right: 8px;
+  }
+}
+
+.screening-panels {
+  display: grid;
+  gap: 16px;
+}
+
+.screening-panel {
+  border: 1px solid var(--compliance-border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  h3 {
+    margin: 0 0 8px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--compliance-muted);
+  }
+
+  button mat-icon {
+    margin-right: 8px;
+  }
+
+  @media (width <= 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.screening-status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.status-label,
+.screened-at {
+  font-size: 0.875rem;
+}
+
+mat-chip {
+  &.idle,
+  &.loading,
+  &.unavailable {
+    background-color: var(--compliance-neutral-bg);
+  }
+
+  &.clear {
+    background-color: rgba(c.$msg-success, 0.16);
+    color: c.$nephritis;
+  }
+
+  &.possible-match {
+    background-color: rgba(c.$msg-warning, 0.16);
+    color: c.$pumpkin;
+  }
+
+  &.match,
+  &.error {
+    background-color: rgba(c.$msg-danger, 0.16);
+    color: c.$msg-danger;
+  }
+}
+
+.screening-progress,
+.screening-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.screening-progress {
+  background-color: var(--compliance-neutral-bg);
+}
+
+.screening-message {
+  &.info {
+    background-color: rgba(c.$belize-hole, 0.12);
+    color: c.$belize-hole;
+  }
+
+  &.success {
+    background-color: rgba(c.$msg-success, 0.12);
+    color: c.$nephritis;
+  }
+
+  &.error {
+    background-color: rgba(c.$msg-danger, 0.12);
+    color: c.$msg-danger;
+  }
+}
+
+.screened-attributes,
+.matches-section {
+  margin-bottom: 16px;
+
+  h4 {
+    margin: 0 0 8px;
+  }
+}
+
+.lower-scored {
+  .hint {
+    margin: 0 0 8px;
+    font-size: 0.875rem;
+    color: var(--compliance-muted);
+  }
+
+  .match-panel {
+    opacity: 0.85;
+  }
+}
+
+.match-panel mat-panel-description {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.match-detail-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.detail-row {
+  overflow-wrap: anywhere;
+
+  &.muted {
+    font-size: 0.875rem;
+    color: var(--compliance-muted);
+  }
+}
+
+.topic-badge,
+.feature-score {
+  display: inline-block;
+  margin: 0 8px 4px 0;
+  padding: 0 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  background-color: var(--compliance-neutral-bg);
+}
+
+.topic-badge.high-risk {
+  background-color: rgba(c.$msg-danger, 0.16);
+  color: c.$msg-danger;
+}
+
+.linked-entities {
+  margin: 4px 0 0;
+  padding-left: 16px;
+}
+
+.source-link {
+  display: block;
+  word-break: break-all;
+}
