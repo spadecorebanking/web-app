@@ -2,7 +2,7 @@
 
 ## Overview
 
-Mifos® X Web App is a modern single-page application (SPA) built on top of the Mifos® X platform for financial inclusion. It serves as the default web interface for the Mifos® user community.
+Mifos®/Spade X Web App is a modern single-page application (SPA) built on top of the Mifos® X platform for financial inclusion. It serves as the default web interface for the Mifos® user community.
 
 **Technologies Used:**
 
