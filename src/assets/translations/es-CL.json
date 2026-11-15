@@ -1669,6 +1669,7 @@
       "SemiWeeks": "SemiWeeks"
     },
     "commons": {
+      "None": "Ninguno",
       "50 characters long": "50 caracteres de largo",
       "12 characters long": "12 caracteres de largo",
       "Amount must be": "La cantidad debe ser",

@@ -1669,6 +1669,7 @@
       "account_transfer": "Pervedimas tarp sąskaitų"
     },
     "commons": {
+      "None": "Nėra",
       "50 characters long": "50 simbolių ilgio",
       "12 characters long": "12 simbolių ilgio",
       "Amount must be": "Suma turi būti",

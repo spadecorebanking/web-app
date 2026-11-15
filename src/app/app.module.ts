@@ -40,6 +40,7 @@ import { CallbackComponent } from './zitadel/callback/callback.component';
 import { OAuthModule } from 'angular-oauth2-oidc';
 import { provideLottieOptions } from 'ngx-lottie';
 import { CustomMissingTranslationHandler } from './core/translation/missing-translation.handler';
+import { translationFileSuffix } from './core/translation/translation-file-suffix';
 
 @NgModule({
   declarations: [WebAppComponent],
@@ -50,7 +51,13 @@ import { CustomMissingTranslationHandler } from './core/translation/missing-tran
         provide: TranslateLoader,
         useFactory: (httpBackend: HttpBackend, locationStrategy: LocationStrategy) => {
           const http = new HttpClient(httpBackend);
-          return new TranslateHttpLoader(http, `/assets/translations/`, '.json');
+          // The suffix carries the build version (`.json?v=<date>-<commit>`), so a deploy that
+          // adds translation keys is never hidden behind a browser's cached copy of the old file.
+          return new TranslateHttpLoader(
+            http,
+            `/assets/translations/`,
+            translationFileSuffix(environment.version, environment.hash)
+          );
         },
         deps: [
           HttpBackend,

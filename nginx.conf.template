@@ -78,6 +78,24 @@ server {
         try_files $uri $uri/ /index.html;
     }
 
+    # Files that keep the same URL on every deploy (env.js changes on every
+    # container start) must be revalidated, or browsers keep showing old
+    # translations and old runtime settings. "no-cache" still lets the browser
+    # reuse its copy after a quick 304 check against the ETag.
+    # Exact (=) and ^~ matches take priority over the regex rule below, which
+    # would otherwise cache env.js for a year as "immutable".
+    location = /index.html {
+        add_header Cache-Control "no-cache";
+    }
+
+    location = /assets/env.js {
+        add_header Cache-Control "no-cache";
+    }
+
+    location ^~ /assets/translations/ {
+        add_header Cache-Control "no-cache";
+    }
+
     # Cache static assets
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
         expires 1y;
