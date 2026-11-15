@@ -99,6 +99,36 @@ describe('Datatables JSON support', () => {
     ]);
   });
 
+  it('lets mandatory boolean columns be saved unchecked', () => {
+    const [
+      mandatoryFlag,
+      optionalFlag
+    ] = datatables.getFormfields(
+      [
+        { columnName: 'mandatory_flag', columnDisplayType: 'BOOLEAN', isColumnNullable: false },
+        { columnName: 'optional_flag', columnDisplayType: 'BOOLEAN', isColumnNullable: true }
+      ],
+      [],
+      {}
+    );
+
+    expect(mandatoryFlag.value).toBe(false);
+    expect(mandatoryFlag.required).toBe(false);
+    expect(optionalFlag.value).toBe('');
+    expect(optionalFlag.required).toBe(false);
+  });
+
+  it('does not limit date columns to dates from the year 2000 on', () => {
+    const [dateOfBirth] = datatables.getFormfields(
+      [{ columnName: 'date_of_birth', columnDisplayType: 'DATE', isColumnNullable: true }],
+      [],
+      {}
+    );
+
+    expect(dateOfBirth.minDate).toBeNull();
+    expect(dateOfBirth.maxDate).toEqual(new Date(2030, 0, 1));
+  });
+
   it.each([
     [
       'nested object',
@@ -164,5 +194,34 @@ describe('Datatables JSON support', () => {
     expect(payload).toEqual({ locale: 'en', profile: jsonText });
     expect(typeof payload.profile).toBe('string');
     expect(JSON.parse(payload.profile)).toEqual({ customerType: 'business', risk: { score: 12 } });
+  });
+
+  it('keeps blank optional number fields empty instead of submitting 0', () => {
+    const inputs = [
+      { columnName: 'never_touched', columnDisplayType: 'INTEGER' },
+      { columnName: 'cleared', columnDisplayType: 'DECIMAL' },
+      { columnName: 'missing', columnDisplayType: 'INTEGER' }
+    ];
+    const payload = datatables.buildPayload(inputs, { never_touched: '', cleared: null }, 'yyyy-MM-dd', {
+      locale: 'en'
+    });
+
+    expect(payload).toEqual({ locale: 'en', never_touched: null, cleared: null, missing: null });
+  });
+
+  it('submits entered number fields as numbers, including 0', () => {
+    const inputs = [
+      { columnName: 'children', columnDisplayType: 'INTEGER' },
+      { columnName: 'income', columnDisplayType: 'DECIMAL' },
+      { columnName: 'loans_elsewhere', columnDisplayType: 'INTEGER' }
+    ];
+    const payload = datatables.buildPayload(
+      inputs,
+      { children: 2, income: '1500.75', loans_elsewhere: 0 },
+      'yyyy-MM-dd',
+      { locale: 'en' }
+    );
+
+    expect(payload).toEqual({ locale: 'en', children: 2, income: 1500.75, loans_elsewhere: 0 });
   });
 });

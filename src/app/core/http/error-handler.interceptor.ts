@@ -23,6 +23,8 @@ import { AlertService } from '../alert/alert.service';
 import { TranslateService } from '@ngx-translate/core';
 
 /** Custom Models */
+import { financialRestrictionError } from 'app/savings/shared/financial-restriction-error';
+import { ACCOUNT_MANAGEMENT_REQUEST } from './account-management-request';
 import { BRANDING_API_PATH } from 'app/shared/theme-picker/theme.model';
 
 /** Initialize Logger */
@@ -100,12 +102,105 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
     return request.method === 'POST' && request.url.split('?')[0].endsWith('/authentication');
   }
 
+  private isTellerAuthorizationFailure(error: unknown): boolean {
+    let body = this.parseErrorBody(error);
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch {
+        return false;
+      }
+    }
+    const codes = [
+      body?.userMessageGlobalisationCode,
+      ...(Array.isArray(body?.errors) ? body.errors.map((item: any) => item?.userMessageGlobalisationCode) : [])
+    ];
+    return codes.some((code) => typeof code === 'string' && code.includes('authorization.'));
+  }
+
   private handleError(response: HttpErrorResponse, request: HttpRequest<any>): Observable<HttpEvent<any>> {
     const status = response.status;
+    // Account management renders allowlisted localized errors, including optional endpoint 404s.
+    // Never send its financial payloads to the generic response logger or raw server-message alerts.
+    if (
+      request.context.get(ACCOUNT_MANAGEMENT_REQUEST) ||
+      /\/savings\/(?:account-relationships|guarantee-sweeps|planned-savings)(?:[/?]|$)/.test(request.url)
+    ) {
+      if (status === 401) {
+        this.alertService.alert({
+          type: this.translate.instant('errors.error.auth.sessionExpired.type'),
+          message: this.translate.instant('errors.error.auth.sessionExpired.message')
+        });
+      }
+      return throwError(() => response);
+    }
+    const restriction = financialRestrictionError(response);
+    if (
+      restriction &&
+      (/\/base-teller\/(?:withdrawals|account-transfers)(?:[/?]|$)/.test(request.url) ||
+        (request.method === 'POST' && /\/savingsaccounts\/[^/?]+\/transactions\/?(?:\?|$)/.test(request.url)))
+    ) {
+      // These workflows render known restrictions locally. Preserve the rejection without a duplicate alert.
+      return throwError(() => response);
+    }
+    if (restriction) {
+      // Domain rejection may be HTTP 403. Preserve the response without exposing server internals.
+      this.alertService.alert({
+        type: this.translate.instant('FinancialControls.TransactionRejected'),
+        message: this.translate.instant(restriction)
+      });
+      return throwError(() => response);
+    }
+    if (status !== 401 && /\/savings\/monthly-fees(?:[/?]|$)/.test(request.url)) {
+      // This optional administrative panel renders its own safe error and reload controls.
+      return throwError(() => response);
+    }
+    // These teller workflows render safe localized errors, including text response bodies.
+    if (
+      /\/base-teller\/(?:account-transfers|cash-transfers|withdrawals|vault|vault-cash-deposits)(?:[/?]|$)/.test(
+        request.url
+      )
+    ) {
+      if (status === 401) {
+        this.alertService.alert({
+          type: this.translate.instant('errors.error.auth.sessionExpired.type'),
+          message: this.translate.instant('errors.error.auth.sessionExpired.message')
+        });
+      }
+      return throwError(() => response);
+    }
+    // Pickup authorization bodies must never reach generic logging or raw error alerts.
+    if (/\/base-teller\/cash-drawer-pickups(?:[/?]|$)/.test(request.url)) {
+      if (status === 401 && !this.isTellerAuthorizationFailure(response.error)) {
+        this.alertService.alert({
+          type: this.translate.instant('errors.error.auth.sessionExpired.type'),
+          message: this.translate.instant('errors.error.auth.sessionExpired.message')
+        });
+      }
+      return throwError(() => response);
+    }
+    // Keep credential-bearing closing errors out of the generic response-body logger.
+    if (/\/base-teller\/end-of-day-closing(?:[/?]|$)/.test(request.url)) {
+      if (status === 401 && !this.isTellerAuthorizationFailure(response.error)) {
+        this.alertService.alert({
+          type: this.translate.instant('errors.error.auth.sessionExpired.type'),
+          message: this.translate.instant('errors.error.auth.sessionExpired.message')
+        });
+      }
+      return throwError(() => response);
+    }
     // Cash Exchange maps backend failures to safe, localized messages in its workflow.
     // Match the endpoint regardless of the API prefix used by a gateway.
     // A 401 still needs the shared session-expired alert.
     if (status !== 401 && /\/base-teller\/cash-exchanges(?:[/?]|$)/.test(request.url)) {
+      return throwError(() => response);
+    }
+
+    // FX renders allowlisted translated domain errors; never surface SQL or server messages.
+    if (
+      status !== 401 &&
+      /\/v2\/(?:foreign-currency\/rates|base-teller\/foreign-currency)(?:[/?]|$)/.test(request.url)
+    ) {
       return throwError(() => response);
     }
 

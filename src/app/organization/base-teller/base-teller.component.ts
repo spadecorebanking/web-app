@@ -7,7 +7,7 @@
  */
 
 /** Angular Imports */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 
@@ -17,6 +17,16 @@ import { IconName } from '@fortawesome/fontawesome-svg-core';
 
 /** Custom Modules */
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+
+/** Workflow permissions */
+import { AuthenticationService } from 'app/core/authentication/authentication.service';
+import { canReadCashTransfers } from './cash-transfers-between-tellers/cash-transfer.guard';
+import { canReadWithdrawals } from './withdrawals/withdrawal.guard';
+import { canReadTransfers } from './account-transfers/account-transfer.guard';
+
+import { canReadVault, canReadVaultHistory } from './vault-cash-deposit/vault-cash-deposit.guard';
+
+import { hasFxPermission } from '../foreign-currency/foreign-currency.guard';
 
 /** Environment */
 import { environment } from 'environments/environment';
@@ -31,6 +41,31 @@ export interface BaseTellerWorkflow {
 }
 
 export const BASE_TELLER_WORKFLOWS: readonly BaseTellerWorkflow[] = [
+  { label: 'fx.title', materialIcon: 'currency_exchange', permission: 'READ_BASE_TELLER_FX', route: [
+      '/organization',
+      'base-teller',
+      'foreign-currency'
+    ] },
+  { label: 'cashTellerTransfer.title', materialIcon: 'payments', permission: 'READ_BASE_TELLER_CASH_TRANSFER', route: [
+      '/organization',
+      'base-teller',
+      'cash-transfers-between-tellers'
+    ] },
+  { label: 'accountTransfer.title', materialIcon: 'swap_horiz', permission: 'READ_ACCOUNTTRANSFER', route: [
+      '/organization',
+      'base-teller',
+      'account-transfers'
+    ] },
+  { label: 'cashPickup.title', materialIcon: 'move_down', permission: 'READ_BASE_TELLER_CASH_DRAWER_PICKUP', route: [
+      '/organization',
+      'base-teller',
+      'cash-drawer-pickup'
+    ] },
+  { label: 'eod.title', materialIcon: 'point_of_sale', permission: 'READ_BASE_TELLER_END_OF_DAY_CLOSING', route: [
+      '/organization',
+      'base-teller',
+      'end-of-day-cash-closing'
+    ] },
   {
     label: 'cashExchange.title',
     materialIcon: 'currency_exchange',
@@ -182,6 +217,16 @@ export const BASE_TELLER_WORKFLOWS: readonly BaseTellerWorkflow[] = [
     ]
   },
   {
+    label: 'transactionReversal.title',
+    materialIcon: 'undo',
+    permission: 'READ_BASE_TELLER_TRANSACTION_REVERSAL',
+    route: [
+      '/organization',
+      'base-teller',
+      'transaction-reversal'
+    ]
+  },
+  {
     label: 'labels.heading.Bill and Service Payment',
     fontAwesomeIcon: 'money-check-dollar',
     permission: 'READ_BASE_TELLER_SERVICE_PAYMENT',
@@ -211,9 +256,75 @@ export const BASE_TELLER_WORKFLOWS: readonly BaseTellerWorkflow[] = [
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BaseTellerComponent {
+  private readonly authentication = inject(AuthenticationService);
   readonly productionMode = environment.productionMode === true;
 
+  get specialOperations(): readonly BaseTellerWorkflow[] {
+    return canReadVault(this.authentication.getCredentials()?.permissions ?? [])
+      ? [
+          {
+            label: 'vaultDeposit.title',
+            materialIcon: 'account_balance',
+            permission: 'READ_BASE_TELLER_CASH_INVENTORY',
+            route: [
+              '/organization',
+              'base-teller',
+              'vault-cash-deposit'
+            ]
+          },
+          ...(canReadVaultHistory(this.authentication.getCredentials()?.permissions ?? [])
+            ? [
+                {
+                  label: 'vaultDeposit.history.title',
+                  materialIcon: 'history',
+                  permission: 'READ_BASE_TELLER_TRANSACTION_HISTORY',
+                  route: [
+                    '/organization',
+                    'base-teller',
+                    'vault-cash-deposit',
+                    'history'
+                  ]
+                }
+              ]
+            : [])
+        ]
+      : [];
+  }
+
+  get outflows(): readonly BaseTellerWorkflow[] {
+    return canReadWithdrawals(this.authentication.getCredentials()?.permissions ?? [])
+      ? [
+          {
+            label: 'withdrawal.title',
+            materialIcon: 'payments',
+            permission: 'READ_BASE_TELLER_WITHDRAWAL',
+            route: [
+              '/organization',
+              'base-teller',
+              'withdrawals'
+            ]
+          }
+        ]
+      : [];
+  }
+
+  get otherOperations(): readonly BaseTellerWorkflow[] {
+    const permissions = this.authentication.getCredentials()?.permissions ?? [];
+    return BASE_TELLER_WORKFLOWS.filter(
+      (w) =>
+        (w.permission === 'READ_BASE_TELLER_FX' && hasFxPermission(permissions, 'READ_BASE_TELLER_FX')) ||
+        (w.permission === 'READ_ACCOUNTTRANSFER' && canReadTransfers(permissions)) ||
+        (w.permission === 'READ_BASE_TELLER_CASH_TRANSFER' && canReadCashTransfers(permissions))
+    );
+  }
+
   get workflows(): readonly BaseTellerWorkflow[] {
-    return BASE_TELLER_WORKFLOWS.filter((workflow) => !workflow.productionOnly || this.productionMode);
+    return BASE_TELLER_WORKFLOWS.filter(
+      (workflow) => (!workflow.productionOnly || this.productionMode) && ![
+          'READ_ACCOUNTTRANSFER',
+          'READ_BASE_TELLER_FX',
+          'READ_BASE_TELLER_CASH_TRANSFER'
+        ].includes(workflow.permission)
+    );
   }
 }

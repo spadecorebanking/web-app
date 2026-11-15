@@ -43,7 +43,7 @@ import { StatusLookupPipe } from '../../pipes/status-lookup.pipe';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 import { formatTabLabel } from 'app/shared/utils/format-tab-label.util';
 import { AccountHeaderComponent } from 'app/shared/account-header/account-header.component';
-import { ClientScreeningComponent } from './client-screening/client-screening.component';
+import { ClientScreeningService } from '../services/client-screening.service';
 
 @Component({
   selector: 'mifosx-clients-view',
@@ -69,8 +69,7 @@ import { ClientScreeningComponent } from './client-screening/client-screening.co
     MatTabNavPanel,
     RouterOutlet,
     DateFormatPipe,
-    StatusLookupPipe,
-    ClientScreeningComponent
+    StatusLookupPipe
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -132,6 +131,7 @@ export class ClientsViewComponent implements OnInit {
   private _sanitizer = inject(DomSanitizer);
   dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
+  private clientScreeningService = inject(ClientScreeningService);
 
   clientViewData: any;
   clientDatatables: any;
@@ -430,6 +430,14 @@ export class ClientsViewComponent implements OnInit {
    */
   get isCbildCompliance(): boolean {
     return this.creditBureauService.getRole() === 'COMPLIANCE';
+  }
+
+  /**
+   * Whether to show the Compliance (sanctions/PEP screening) tab. True when
+   * Yente is configured (`ENABLE_YENTE_SCREENING` or `YENTE_SCREENING_URL`).
+   */
+  get complianceScreeningEnabled(): boolean {
+    return this.clientScreeningService.enabled;
   }
 
   get cbIldEnabled(): boolean {

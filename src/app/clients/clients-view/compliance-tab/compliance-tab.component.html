@@ -1,0 +1,261 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="compliance-tab">
+  @if (!isEnabled) {
+    <div class="screening-message info">
+      <mat-icon>info</mat-icon>
+      <span>{{ 'labels.messages.Client screening is not configured' | translate }}</span>
+    </div>
+  } @else {
+    <!-- Summary: overall status and the actions that cover both checks -->
+    <section class="compliance-summary">
+      <div class="summary-text">
+        <h3>{{ 'labels.heading.Sanctions and PEP Screening' | translate }}</h3>
+        <p>{{ 'labels.messages.Screen this client against the configured watchlists' | translate }}</p>
+        <div class="screening-status">
+          <span class="status-label">{{ 'labels.inputs.Overall Status' | translate }}</span>
+          <mat-chip-set>
+            <mat-chip [class]="overallStatus" data-testid="overall-status">
+              {{ statusLabelKey(overallStatus) | translate }}
+            </mat-chip>
+          </mat-chip-set>
+          <span class="screened-at"> {{ 'labels.inputs.Dataset' | translate }}: {{ screeningService.dataset }} </span>
+        </div>
+      </div>
+      <div class="summary-actions">
+        <button mat-raised-button color="primary" (click)="runAllScreening()" [disabled]="isAnyLoading">
+          <mat-icon>policy</mat-icon>
+          {{ 'labels.buttons.Screen All' | translate }}
+        </button>
+        <button
+          mat-stroked-button
+          color="primary"
+          (click)="saveToNotes()"
+          [disabled]="!canSaveNote"
+          *mifosxHasPermission="'CREATE_CLIENTNOTE'"
+        >
+          <mat-icon>note_add</mat-icon>
+          {{ 'labels.buttons.Save to Client Notes' | translate }}
+        </button>
+      </div>
+    </section>
+
+    @if (noteMessageKey) {
+      <div class="screening-message" [class.error]="noteMessageIsError" [class.success]="!noteMessageIsError">
+        <mat-icon>{{ noteMessageIsError ? 'error_outline' : 'check_circle' }}</mat-icon>
+        <span>{{ noteMessageKey | translate }}</span>
+      </div>
+    }
+
+    <div class="screening-panels">
+      <section class="screening-panel">
+        <div class="panel-header">
+          <div>
+            <h3>{{ 'labels.heading.Name Screening' | translate }}</h3>
+            <p>{{ 'labels.messages.Name screening description' | translate }}</p>
+          </div>
+          <button mat-raised-button color="primary" (click)="runNameScreening()" [disabled]="isNameLoading">
+            <mat-icon>manage_search</mat-icon>
+            {{ 'labels.buttons.Screen Name' | translate }}
+          </button>
+        </div>
+        <ng-container
+          [ngTemplateOutlet]="resultTemplate"
+          [ngTemplateOutletContext]="{ $implicit: nameScreeningResult, loading: isNameLoading }"
+        ></ng-container>
+      </section>
+
+      <section class="screening-panel">
+        <div class="panel-header">
+          <div>
+            <h3>{{ 'labels.heading.Address Screening' | translate }}</h3>
+            <p>{{ 'labels.messages.Address screening description' | translate }}</p>
+          </div>
+          <button mat-raised-button color="primary" (click)="runAddressScreening()" [disabled]="isAddressLoading">
+            <mat-icon>location_searching</mat-icon>
+            {{ 'labels.buttons.Screen Address' | translate }}
+          </button>
+        </div>
+        <ng-container
+          [ngTemplateOutlet]="resultTemplate"
+          [ngTemplateOutletContext]="{ $implicit: addressScreeningResult, loading: isAddressLoading }"
+        ></ng-container>
+      </section>
+    </div>
+  }
+</div>
+
+<!--
+  Shared result layout for the name and address checks. Address-only parts
+  (matched client address, linked entities) appear only when present.
+-->
+<ng-template #resultTemplate let-result let-loading="loading">
+  <div class="screening-status">
+    <span class="status-label">{{ 'labels.inputs.Status' | translate }}</span>
+    <mat-chip-set>
+      <mat-chip [class]="result.status">{{ statusLabelKey(result.status) | translate }}</mat-chip>
+    </mat-chip-set>
+    @if (result.screenedAt) {
+      <span class="screened-at">
+        {{ 'labels.inputs.Last Screened' | translate }}: {{ result.screenedAt | date: 'medium' }}
+      </span>
+    }
+  </div>
+
+  @if (loading) {
+    <div class="screening-progress">
+      <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
+      <span>{{ 'labels.messages.Screening request in progress' | translate }}</span>
+    </div>
+  }
+
+  @if (result.errorMessageKey) {
+    <div class="screening-message" [class.error]="result.status === 'error'" [class.info]="result.status !== 'error'">
+      <mat-icon>{{ result.status === 'error' ? 'error_outline' : 'info' }}</mat-icon>
+      <span>{{ result.errorMessageKey | translate }}</span>
+    </div>
+  }
+
+  @if (shouldShowInfoMessage(result)) {
+    <div class="screening-message info">
+      <mat-icon>info</mat-icon>
+      <span>{{ 'labels.messages.No screening matches were found' | translate }}</span>
+    </div>
+  }
+
+  @if (result.screenedAttributes?.length) {
+    <div class="screened-attributes">
+      <h4>{{ 'labels.inputs.Screened Attributes' | translate }}</h4>
+      @for (attribute of result.screenedAttributes; track attribute.labelKey) {
+        <div class="detail-row">
+          <strong>{{ attribute.labelKey | translate }}:</strong> {{ attribute.values.join('; ') }}
+        </div>
+      }
+    </div>
+  }
+
+  @if (result.matches.length) {
+    <div class="matches-section">
+      <h4>{{ 'labels.heading.Returned Matches' | translate }}</h4>
+      @for (match of result.matches; track match.id) {
+        <ng-container
+          [ngTemplateOutlet]="matchTemplate"
+          [ngTemplateOutletContext]="{ $implicit: match }"
+        ></ng-container>
+      }
+    </div>
+  }
+
+  @if (result.lowerScoredMatches?.length) {
+    <div class="matches-section lower-scored">
+      <h4>{{ 'labels.heading.Lower-Scored Candidates' | translate }} ({{ result.lowerScoredMatches.length }})</h4>
+      <p class="hint">{{ 'labels.messages.Lower-scored candidates do not affect the status' | translate }}</p>
+      @for (match of result.lowerScoredMatches; track match.id) {
+        <ng-container
+          [ngTemplateOutlet]="matchTemplate"
+          [ngTemplateOutletContext]="{ $implicit: match }"
+        ></ng-container>
+      }
+    </div>
+  }
+</ng-template>
+
+<!-- One candidate: score in the header, details and score breakdown when expanded -->
+<ng-template #matchTemplate let-match>
+  <mat-expansion-panel class="match-panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>{{ match.caption }}</mat-panel-title>
+      <mat-panel-description>
+        <span>{{ 'labels.inputs.Score' | translate }}: {{ match.score | number: '1.2-2' }}</span>
+        @for (topic of match.topics.slice(0, 3); track topic) {
+          <span class="topic-badge" [class.high-risk]="isHighRiskTopic(topic)">
+            {{ topicLabelKey(topic) ? (topicLabelKey(topic) | translate) : topic }}
+          </span>
+        }
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div class="match-detail-grid">
+      @if (match.matchedClientValue) {
+        <div class="detail-row">
+          <strong>{{ 'labels.inputs.Matched Client Address' | translate }}:</strong> {{ match.matchedClientValue }}
+        </div>
+      }
+      <div class="detail-row">
+        <strong>{{ 'labels.inputs.Schema' | translate }}:</strong> {{ match.schema || '-' }}
+      </div>
+      @if (match.topics.length) {
+        <div class="detail-row">
+          <strong>{{ 'labels.inputs.Topics' | translate }}:</strong>
+          @for (topic of match.topics; track topic) {
+            <span class="topic-badge" [class.high-risk]="isHighRiskTopic(topic)">
+              {{ topicLabelKey(topic) ? (topicLabelKey(topic) | translate) : topic }}
+            </span>
+          }
+        </div>
+      }
+      <div class="detail-row">
+        <strong>{{ 'labels.inputs.Datasets' | translate }}:</strong>
+        {{ match.datasets.length ? match.datasets.join(', ') : '-' }}
+      </div>
+      @if (match.birthDates.length) {
+        <div class="detail-row">
+          <strong>{{ 'labels.inputs.Birth Dates' | translate }}:</strong> {{ match.birthDates.join(', ') }}
+        </div>
+      }
+      <div class="detail-row">
+        <strong>{{ 'labels.inputs.Countries' | translate }}:</strong>
+        {{ match.countries.length ? match.countries.join(', ') : '-' }}
+      </div>
+      @if (match.addresses.length) {
+        <div class="detail-row">
+          <strong>{{ 'labels.inputs.Addresses' | translate }}:</strong> {{ match.addresses.join('; ') }}
+        </div>
+      }
+      @if (match.linkedEntities?.length) {
+        <div class="detail-row">
+          <strong>{{ 'labels.inputs.Linked Entities' | translate }}:</strong>
+          <ul class="linked-entities">
+            @for (entity of match.linkedEntities; track entity.id) {
+              <li>
+                {{ entity.caption }} ({{ entity.schema }})
+                @for (topic of entity.topics; track topic) {
+                  <span class="topic-badge" [class.high-risk]="isHighRiskTopic(topic)">
+                    {{ topicLabelKey(topic) ? (topicLabelKey(topic) | translate) : topic }}
+                  </span>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+      }
+      @if (match.features.length) {
+        <div class="detail-row">
+          <strong>{{ 'labels.inputs.Score Breakdown' | translate }}:</strong>
+          @for (feature of match.features; track feature.name) {
+            <span class="feature-score">{{ featureLabel(feature.name) }} {{ feature.score | number: '1.2-2' }}</span>
+          }
+        </div>
+      }
+      <div class="detail-row">
+        <strong>{{ 'labels.inputs.Source' | translate }}:</strong>
+        @if (match.sourceUrls.length) {
+          @for (url of match.sourceUrls; track url) {
+            <a [href]="url" target="_blank" rel="noopener noreferrer" class="source-link">{{ url }}</a>
+          }
+        } @else {
+          -
+        }
+      </div>
+      <div class="detail-row muted">
+        <strong>{{ 'labels.inputs.ID' | translate }}:</strong> {{ match.id }}
+      </div>
+    </div>
+  </mat-expansion-panel>
+</ng-template>

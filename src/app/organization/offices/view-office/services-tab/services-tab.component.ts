@@ -7,7 +7,15 @@
  */
 
 /** Angular Imports */
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  OnInit,
+  Input,
+  inject
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
@@ -29,8 +37,8 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatTooltip } from '@angular/material/tooltip';
 
 /** rxjs Imports */
-import { of } from 'rxjs';
-import { catchError, finalize } from 'rxjs/operators';
+import { of, Subject, Subscription } from 'rxjs';
+import { catchError, finalize, map, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 /** Custom Components */
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
@@ -46,6 +54,7 @@ import { FormfieldBase } from 'app/shared/form-dialog/formfield/model/formfield-
 import { InputBase } from 'app/shared/form-dialog/formfield/model/input-base';
 
 /** Custom Imports */
+import { OfficeDetailsSummary } from '../office-details-summary';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 
 interface OfficeServiceData {
@@ -80,6 +89,9 @@ interface OfficeServiceData {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServicesTabComponent implements OnInit {
+  @Input() readOnly = false;
+
+  private summary = inject(OfficeDetailsSummary, { optional: true });
   private route = inject(ActivatedRoute);
   private organizationService = inject(OrganizationService);
   private dialog = inject(MatDialog);
@@ -87,9 +99,19 @@ export class ServicesTabComponent implements OnInit {
   private changeDetectorRef = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
+  private readonly officeChanged = new Subject<void>();
+  private loadRequest?: Subscription;
+
   officeId: string;
   officeServices: OfficeServiceData[] = [];
-  displayedColumns: string[] = [
+  get displayedColumns(): string[] {
+    return this.readOnly ? [
+          'serviceName',
+          'workingHours'
+        ] : this.columns;
+  }
+
+  private readonly columns: string[] = [
     'serviceName',
     'serviceExternalId',
     'workingHours',
@@ -101,16 +123,29 @@ export class ServicesTabComponent implements OnInit {
   isPluginUnavailable = false;
 
   ngOnInit() {
-    this.officeId = this.route.parent.snapshot.paramMap.get('officeId') ?? '';
-    this.loadOfficeServices();
+    this.route.parent.paramMap
+      .pipe(
+        map((params) => params.get('officeId') ?? ''),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((officeId) => {
+        this.officeChanged.next();
+        this.officeId = officeId;
+        this.officeServices = [];
+        this.isSaving = false;
+        this.loadOfficeServices();
+      });
   }
 
   loadOfficeServices() {
+    this.loadRequest?.unsubscribe();
+    this.summary?.serviceCount.set(null);
     this.isLoading = true;
     this.hasError = false;
     this.isPluginUnavailable = false;
 
-    this.organizationService
+    this.loadRequest = this.organizationService
       .getOfficeServices(this.officeId)
       .pipe(
         catchError((error) => {
@@ -125,15 +160,19 @@ export class ServicesTabComponent implements OnInit {
           this.isLoading = false;
           this.changeDetectorRef.markForCheck();
         }),
+        takeUntil(this.officeChanged),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((services: OfficeServiceData[]) => {
         this.officeServices = Array.isArray(services) ? services : [];
+        if (!this.hasError && !this.isPluginUnavailable && Array.isArray(services)) {
+          this.summary?.serviceCount.set(this.officeServices.length);
+        }
       });
   }
 
   addService() {
-    if (this.isPluginUnavailable) {
+    if (this.readOnly || this.isPluginUnavailable) {
       return;
     }
 
@@ -146,17 +185,20 @@ export class ServicesTabComponent implements OnInit {
       layout: { addButtonText: this.translateService.instant('labels.buttons.Submit') }
     };
     const addServiceDialogRef = this.dialog.open(FormDialogComponent, { data });
-    addServiceDialogRef.afterClosed().subscribe((response: any) => {
-      if (response?.data) {
-        this.saveService(
-          this.organizationService.createOfficeService(this.officeId, this.normalizeServiceData(response.data.value))
-        );
-      }
-    });
+    addServiceDialogRef
+      .afterClosed()
+      .pipe(takeUntil(this.officeChanged), takeUntilDestroyed(this.destroyRef))
+      .subscribe((response: any) => {
+        if (response?.data) {
+          this.saveService(
+            this.organizationService.createOfficeService(this.officeId, this.normalizeServiceData(response.data.value))
+          );
+        }
+      });
   }
 
   editService(service: OfficeServiceData) {
-    if (this.isPluginUnavailable) {
+    if (this.readOnly || this.isPluginUnavailable) {
       return;
     }
 
@@ -174,21 +216,24 @@ export class ServicesTabComponent implements OnInit {
       layout: { addButtonText: this.translateService.instant('labels.buttons.Edit') }
     };
     const editServiceDialogRef = this.dialog.open(FormDialogComponent, { data });
-    editServiceDialogRef.afterClosed().subscribe((response: any) => {
-      if (response?.data) {
-        this.saveService(
-          this.organizationService.updateOfficeService(
-            this.officeId,
-            officeServiceId,
-            this.normalizeServiceData(response.data.value)
-          )
-        );
-      }
-    });
+    editServiceDialogRef
+      .afterClosed()
+      .pipe(takeUntil(this.officeChanged), takeUntilDestroyed(this.destroyRef))
+      .subscribe((response: any) => {
+        if (response?.data) {
+          this.saveService(
+            this.organizationService.updateOfficeService(
+              this.officeId,
+              officeServiceId,
+              this.normalizeServiceData(response.data.value)
+            )
+          );
+        }
+      });
   }
 
   deleteService(service: OfficeServiceData) {
-    if (this.isPluginUnavailable) {
+    if (this.readOnly || this.isPluginUnavailable) {
       return;
     }
 
@@ -200,11 +245,14 @@ export class ServicesTabComponent implements OnInit {
     const deleteServiceDialogRef = this.dialog.open(DeleteDialogComponent, {
       data: { deleteContext: this.translateService.instant('labels.heading.Services') }
     });
-    deleteServiceDialogRef.afterClosed().subscribe((response: any) => {
-      if (response?.delete) {
-        this.saveService(this.organizationService.deleteOfficeService(this.officeId, officeServiceId));
-      }
-    });
+    deleteServiceDialogRef
+      .afterClosed()
+      .pipe(takeUntil(this.officeChanged), takeUntilDestroyed(this.destroyRef))
+      .subscribe((response: any) => {
+        if (response?.delete) {
+          this.saveService(this.organizationService.deleteOfficeService(this.officeId, officeServiceId));
+        }
+      });
   }
 
   getOfficeServiceId(service: OfficeServiceData, index?: number): string {
@@ -213,6 +261,20 @@ export class ServicesTabComponent implements OnInit {
       return index === undefined ? '' : `office-service-${index}`;
     }
     return officeServiceId.toString();
+  }
+
+  /** Only a single explicit, increasing 24-hour interval can describe this daily bar. */
+  getDailyInterval(value: unknown): { start: number; width: number } | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+    const match = /^(\d{2}):([0-5]\d)\s*[-–]\s*(\d{2}):([0-5]\d)$/.exec(value.trim());
+    if (!match || Number(match[1]) > 23 || Number(match[3]) > 23) {
+      return null;
+    }
+    const start = Number(match[1]) * 60 + Number(match[2]);
+    const end = Number(match[3]) * 60 + Number(match[4]);
+    return start < end ? { start: start / 14.4, width: (end - start) / 14.4 } : null;
   }
 
   private saveService(request: any) {
@@ -225,6 +287,7 @@ export class ServicesTabComponent implements OnInit {
           this.isSaving = false;
           this.changeDetectorRef.markForCheck();
         }),
+        takeUntil(this.officeChanged),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

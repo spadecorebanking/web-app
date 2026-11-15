@@ -22,6 +22,7 @@ import { LoanProductSelectionComponent } from './loan-products/create-loan-produ
 import { ViewLoanProductComponent } from './loan-products/view-loan-product/view-loan-product.component';
 import { EditLoanProductComponent } from './loan-products/edit-loan-product/edit-loan-product.component';
 import { SavingProductsComponent } from './saving-products/saving-products.component';
+import { productEditorGuard } from './saving-products/product-editor/product-editor.guard';
 import { CreateSavingProductComponent } from './saving-products/create-saving-product/create-saving-product.component';
 import { ViewSavingProductComponent } from './saving-products/view-saving-product/view-saving-product.component';
 import { EditSavingProductComponent } from './saving-products/edit-saving-product/edit-saving-product.component';
@@ -71,7 +72,6 @@ import { LoanProductsResolver } from './loan-products/loan-products.resolver';
 import { LoanProductsTemplateResolver } from './loan-products/loan-products-template.resolver';
 import { LoanProductResolver } from './loan-products/loan-product.resolver';
 import { LoanProductAndTemplateResolver } from './loan-products/edit-loan-product/loan-product-and-template.resolver';
-import { SavingProductsResolver } from './saving-products/saving-products.resolver';
 import { SavingProductsTemplateResolver } from './saving-products/saving-products-template.resolver';
 import { SavingProductResolver } from './saving-products/saving-product.resolver';
 import { SavingProductAndTemplateResolver } from './saving-products/edit-saving-product/saving-product-and-template.resolver';
@@ -363,6 +363,21 @@ const routes: Routes = [
                     loanProductAndTemplate: LoanProductAndTemplateResolver,
                     configurations: GlobalConfigurationsResolver
                   }
+                },
+                {
+                  path: 'clone',
+                  component: EditLoanProductComponent,
+                  data: {
+                    title: 'Clone Loan Product',
+                    breadcrumb: 'Clone',
+                    routeParamBreadcrumb: false,
+                    mode: 'clone'
+                  },
+                  runGuardsAndResolvers: 'pathParamsOrQueryParamsChange',
+                  resolve: {
+                    loanProductAndTemplate: LoanProductAndTemplateResolver,
+                    configurations: GlobalConfigurationsResolver
+                  }
                 }
               ]
             }
@@ -374,14 +389,13 @@ const routes: Routes = [
           children: [
             {
               path: '',
-              component: SavingProductsComponent,
-              resolve: {
-                savingProducts: SavingProductsResolver
-              }
+              component: SavingProductsComponent
             },
             {
               path: 'create',
               component: CreateSavingProductComponent,
+              canDeactivate: [productEditorGuard],
+              runGuardsAndResolvers: 'paramsOrQueryParamsChange',
               data: { title: 'Create Savings Product', breadcrumb: 'Create' },
               resolve: {
                 savingProductsTemplate: SavingProductsTemplateResolver
@@ -429,6 +443,8 @@ const routes: Routes = [
                 {
                   path: 'edit',
                   component: EditSavingProductComponent,
+                  canDeactivate: [productEditorGuard],
+                  runGuardsAndResolvers: 'paramsOrQueryParamsChange',
                   data: { title: 'Edit Saving Product', breadcrumb: 'Edit', routeParamBreadcrumb: false },
                   resolve: {
                     savingProductAndTemplate: SavingProductAndTemplateResolver
@@ -612,18 +628,12 @@ const routes: Routes = [
                   children: [
                     {
                       path: '',
-                      component: ViewTaxComponentComponent,
-                      resolve: {
-                        taxComponent: TaxComponentResolver
-                      }
+                      component: ViewTaxComponentComponent
                     },
                     {
                       path: 'edit',
                       data: { title: 'Edit Tax Component', breadcrumb: 'Edit', routeParamBreadcrumb: false },
-                      component: EditTaxComponentComponent,
-                      resolve: {
-                        taxComponent: TaxComponentResolver
-                      }
+                      component: EditTaxComponentComponent
                     }
                   ]
                 }
@@ -657,10 +667,7 @@ const routes: Routes = [
                   children: [
                     {
                       path: '',
-                      component: ViewTaxGroupComponent,
-                      resolve: {
-                        taxGroup: TaxGroupResolver
-                      }
+                      component: ViewTaxGroupComponent
                     },
                     {
                       path: 'edit',
@@ -712,18 +719,12 @@ const routes: Routes = [
                   children: [
                     {
                       path: '',
-                      component: ViewRangeComponent,
-                      resolve: {
-                        delinquencyRange: DelinquencyRangeComponentsResolver
-                      }
+                      component: ViewRangeComponent
                     },
                     {
                       path: 'edit',
                       data: { title: 'Edit Delinquency Range', breadcrumb: 'Edit', routeParamBreadcrumb: false },
-                      component: EditRangeComponent,
-                      resolve: {
-                        delinquencyRange: DelinquencyRangeComponentsResolver
-                      }
+                      component: EditRangeComponent
                     }
                   ]
                 }
@@ -757,17 +758,13 @@ const routes: Routes = [
                   children: [
                     {
                       path: '',
-                      component: ViewBucketComponent,
-                      resolve: {
-                        delinquencyBucket: DelinquencyBucketComponentsResolver
-                      }
+                      component: ViewBucketComponent
                     },
                     {
                       path: 'edit',
                       data: { title: 'Edit Delinquency Bucket', breadcrumb: 'Edit', routeParamBreadcrumb: false },
                       component: EditBucketComponent,
                       resolve: {
-                        delinquencyBucket: DelinquencyBucketComponentsResolver,
                         delinquencyBucketsTemplateData: DelinquencyRangeComponentsResolver
                       }
                     }
@@ -937,18 +934,12 @@ const routes: Routes = [
               children: [
                 {
                   path: '',
-                  component: ViewProductMixComponent,
-                  resolve: {
-                    productMix: ViewProductMixResolver
-                  }
+                  component: ViewProductMixComponent
                 },
                 {
                   path: 'edit',
                   data: { title: 'Edit Product Mix', breadcrumb: 'Edit', routeParamBreadcrumb: false },
-                  component: EditProductMixComponent,
-                  resolve: {
-                    productMix: ViewProductMixResolver
-                  }
+                  component: EditProductMixComponent
                 }
               ]
             }
@@ -979,18 +970,12 @@ const routes: Routes = [
               children: [
                 {
                   path: '',
-                  component: ViewFloatingRateComponent,
-                  resolve: {
-                    floatingRate: FloatingRateResolver
-                  }
+                  component: ViewFloatingRateComponent
                 },
                 {
                   path: 'edit',
                   component: EditFloatingRateComponent,
-                  data: { title: 'Edit Floating Rate', breadcrumb: 'Edit', routeParamBreadcrumb: false },
-                  resolve: {
-                    floatingRate: FloatingRateResolver
-                  }
+                  data: { title: 'Edit Floating Rate', breadcrumb: 'Edit', routeParamBreadcrumb: false }
                 }
               ]
             }
@@ -1025,10 +1010,7 @@ const routes: Routes = [
               children: [
                 {
                   path: '',
-                  component: ViewChargeComponent,
-                  resolve: {
-                    charge: ChargeResolver
-                  }
+                  component: ViewChargeComponent
                 },
                 {
                   path: 'edit',
@@ -1070,18 +1052,14 @@ const routes: Routes = [
               children: [
                 {
                   path: '',
-                  component: ViewCollateralComponent,
-                  resolve: {
-                    collateral: CollateralResolver
-                  }
+                  component: ViewCollateralComponent
                 },
                 {
                   path: 'edit',
                   component: EditCollateralComponent,
                   data: { title: 'Edit Collateral', breadcrumb: 'Edit', routeParamBreadcrumb: false },
                   resolve: {
-                    collateralTemplate: CollateralTemplateResolver,
-                    collateral: CollateralResolver
+                    collateralTemplate: CollateralTemplateResolver
                   }
                 }
               ]
@@ -1192,7 +1170,6 @@ const routes: Routes = [
     LoanProductsTemplateResolver,
     LoanProductResolver,
     LoanProductAndTemplateResolver,
-    SavingProductsResolver,
     SavingProductsTemplateResolver,
     SavingProductResolver,
     SavingProductAndTemplateResolver,
