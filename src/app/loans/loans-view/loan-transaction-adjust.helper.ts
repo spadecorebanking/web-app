@@ -8,6 +8,7 @@
 
 import { LoanTransactionType } from 'app/loans/models/loan-transaction-type.model';
 import { LoanProducts } from 'app/products/loan-products/loan-products';
+import { isDiscountFeeTransaction } from './loan-transaction-type.helper';
 
 /**
  * Availability rules for the Term Loan adjust command
@@ -74,16 +75,41 @@ const REVERSE_ONLY_TRANSACTION_TYPE_IDS: ReadonlySet<number> = new Set([
 ]);
 
 /**
- * Working Capital types the adjust command accepts with a positive amount, i.e.
- * the ones that can be re-submitted from the adjust form. Mirrors
- * WorkingCapitalLoanDataValidator#isEditableForPartialAdjustment: the command
- * also accepts goodwill credit, payout refund and charge adjustment, but only
- * with a zero amount, which is a plain reversal and is already offered through
- * the Working Capital undo command.
+ * Working Capital types the adjust command accepts, i.e. the ones that can be
+ * re-submitted from the adjust form. Mirrors the type switch in the backend's
+ * WorkingCapitalLoanWritePlatformServiceImpl#adjustTransaction, which routes
+ * these four through the repayment like adjustment and rejects every other type
+ * outright. A zero amount is a plain reversal on all of them and is offered
+ * through the Working Capital undo command instead.
  */
 const WORKING_CAPITAL_ADJUSTABLE_TRANSACTION_TYPE_IDS: ReadonlySet<number> = new Set([
-  2 // REPAYMENT
+  2, // REPAYMENT
+  22, // PAYOUT_REFUND
+  23, // GOODWILL_CREDIT
+  26 // CHARGE_ADJUSTMENT
 ]);
+
+/**
+ * Working Capital types the delta based adjustment accepts
+ * (`POST /working-capital-loans/{loanId}/transactions/{transactionId}?command=adjust-by-delta`).
+ * Mirrors WorkingCapitalLoanDataValidator#validateAdjustByDeltaIsSupportedForTransaction.
+ * Unlike the adjust command, the amount sent is the signed difference: the
+ * backend reverses the original and re-creates it with the existing amount
+ * plus the difference, or reverses only when the difference cancels it.
+ */
+const WORKING_CAPITAL_DELTA_ADJUSTABLE_TRANSACTION_TYPE_IDS: ReadonlySet<number> = new Set([
+  2, // REPAYMENT
+  22, // PAYOUT_REFUND
+  23, // GOODWILL_CREDIT
+  26 // CHARGE_ADJUSTMENT
+]);
+
+/**
+ * Permission of the Working Capital delta based adjustment, which the backend
+ * derives from the command action (ADJUSTBYDELTA) and entity
+ * (WORKINGCAPITALLOANTRANSACTION) names.
+ */
+export const WORKING_CAPITAL_ADJUST_BY_DELTA_PERMISSION = 'ADJUSTBYDELTA_WORKINGCAPITALLOANTRANSACTION';
 
 /**
  * Interest refund is repayment like, so it clears gate 1, but the backend
@@ -149,6 +175,44 @@ export function canAdjustWorkingCapitalTransaction(
   alreadyReversed: boolean
 ): boolean {
   return !alreadyReversed && WORKING_CAPITAL_ADJUSTABLE_TRANSACTION_TYPE_IDS.has(transactionType.id);
+}
+
+/**
+ * True when a Working Capital Discount Fee can be drawn down through the
+ * dedicated discount fee adjustment command
+ * (`POST /working-capital-loans/{loanId}/transactions/{transactionId}?command=discountFeeAdjustment`).
+ *
+ * This is deliberately not part of the adjust command's gate above. The adjust
+ * command reverses a transaction and re-creates it, and its backend switch
+ * rejects Discount Fee outright. The discount fee adjustment reverses nothing:
+ * it books a new DISCOUNT_FEE_ADJUSTMENT transaction that draws the remaining
+ * discount pool down by the submitted amount, which is why it stays available
+ * while the pool is not exhausted. Mirrors the gate in the backend's
+ * WorkingCapitalLoanDataValidator#validateDiscountAdjustmentTransaction: an
+ * active, non-reversed discount fee on a loan that is still open.
+ * @param transactionType Type of the transaction
+ * @param alreadyReversed Whether the discount fee is already reversed
+ * @param loanStatus Status of the loan the transaction belongs to
+ */
+export function canAdjustWorkingCapitalDiscountFee(
+  transactionType: LoanTransactionType,
+  alreadyReversed: boolean,
+  loanStatus: { active?: boolean } | null | undefined
+): boolean {
+  return !alreadyReversed && isDiscountFeeTransaction(transactionType) && loanStatus?.active === true;
+}
+
+/**
+ * True when a Working Capital transaction can be corrected by a signed
+ * difference through the delta based adjustment command.
+ * @param transactionType Type of the transaction
+ * @param alreadyReversed Whether the transaction is already reversed
+ */
+export function canAdjustWorkingCapitalTransactionByDelta(
+  transactionType: LoanTransactionType,
+  alreadyReversed: boolean
+): boolean {
+  return !alreadyReversed && WORKING_CAPITAL_DELTA_ADJUSTABLE_TRANSACTION_TYPE_IDS.has(transactionType.id);
 }
 
 /**

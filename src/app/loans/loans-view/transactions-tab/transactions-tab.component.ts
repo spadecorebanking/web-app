@@ -65,9 +65,12 @@ import { isAccrualKindTransaction, isDiscountFeeKindTransaction } from '../loan-
 import {
   adjustmentReopensLoan,
   canAdjustLoanTransaction,
+  canAdjustWorkingCapitalDiscountFee,
   canAdjustWorkingCapitalTransaction,
+  canAdjustWorkingCapitalTransactionByDelta,
   canReverseLoanTransaction,
-  loanAllowsReversal
+  loanAllowsReversal,
+  WORKING_CAPITAL_ADJUST_BY_DELTA_PERMISSION
 } from '../loan-transaction-adjust.helper';
 import {
   appendReversalFields,
@@ -404,9 +407,65 @@ export class TransactionsTabComponent extends LoanProductBaseComponent implement
       : !this.hasChargebackRelation(transaction) && canAdjustLoanTransaction(transaction.type, alreadyReversed);
   }
 
+  /**
+   * True when the row offers the Working Capital Discount Fee Adjustment, a
+   * command of its own that draws the remaining discount pool down rather than
+   * reversing and re-creating the transaction the way `adjust` does. An
+   * exhausted pool leaves nothing to draw down, so the entry disappears with it.
+   * @param transaction Transaction of the row
+   */
+  allowDiscountFeeAdjustment(transaction: LoanTransaction): boolean {
+    return (
+      this.loanProductService.isWorkingCapital &&
+      Number(this.loanDetailsData?.discountFee ?? 0) > 0 &&
+      canAdjustWorkingCapitalDiscountFee(
+        transaction.type,
+        transaction.manuallyReversed || transaction.reversed,
+        this.loanDetailsData?.status
+      )
+    );
+  }
+
+  /**
+   * Opens the discount fee adjustment form for the transaction of the row.
+   * @param transaction Transaction of the row
+   * @param $event Mouse Event
+   */
+  discountFeeAdjustment(transaction: LoanTransaction, $event: MouseEvent): void {
+    $event.stopPropagation();
+    this.router.navigate(
+      [
+        transaction.id,
+        'discount-fee-adjustment'
+      ],
+      {
+        queryParams: {
+          productType: this.loanProductService.productType.value
+        },
+        relativeTo: this.route
+      }
+    );
+  }
+
   /** Permission of the adjust command the row posts, which differs per product. */
   get adjustPermission(): string {
     return this.loanProductService.isWorkingCapital ? 'ADJUST_WORKINGCAPITALLOAN' : 'ADJUST_LOAN';
+  }
+
+  /** Permission of the Working Capital delta based adjustment, gated apart from Adjust. */
+  readonly adjustByDeltaPermission = WORKING_CAPITAL_ADJUST_BY_DELTA_PERMISSION;
+
+  /**
+   * True when the row offers the Working Capital adjustment by difference, a
+   * command of its own on the same endpoint: the amount sent is the signed
+   * difference and the backend works out the corrected total.
+   * @param transaction Transaction of the row
+   */
+  allowAdjustByDeltaTransaction(transaction: LoanTransaction): boolean {
+    return (
+      this.loanProductService.isWorkingCapital &&
+      canAdjustWorkingCapitalTransactionByDelta(transaction.type, transaction.manuallyReversed || transaction.reversed)
+    );
   }
 
   /**
@@ -424,11 +483,31 @@ export class TransactionsTabComponent extends LoanProductBaseComponent implement
    * @param $event Mouse Event
    */
   adjustTransaction(transaction: LoanTransaction, $event: MouseEvent): void {
+    this.openAdjustForm(transaction, $event, 'edit');
+  }
+
+  /**
+   * Opens the adjust form in its delta based mode for the transaction of the row.
+   * @param transaction Transaction of the row
+   * @param $event Mouse Event
+   */
+  adjustTransactionByDelta(transaction: LoanTransaction, $event: MouseEvent): void {
+    this.openAdjustForm(transaction, $event, 'adjust-by-delta');
+  }
+
+  /**
+   * Navigates to one of the adjust form routes of the transaction, carrying the
+   * product type the resolvers read.
+   * @param transaction Transaction of the row
+   * @param $event Mouse Event
+   * @param path Route of the form below the transaction
+   */
+  private openAdjustForm(transaction: LoanTransaction, $event: MouseEvent, path: string): void {
     $event.stopPropagation();
     this.router.navigate(
       [
         transaction.id,
-        'edit'
+        path
       ],
       {
         queryParams: {

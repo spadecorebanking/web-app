@@ -16,6 +16,7 @@
       accountImage
       mat-card-md-image
       class="profile-image"
+      [class.has-image]="!!clientImage"
       [alt]="complianceHideClientData ? maskName(clientViewData.displayName) : clientViewData.displayName"
       [src]="clientImage ? clientImage : 'assets/images/user_placeholder.png'"
     />
@@ -420,6 +421,21 @@
           <path d="M3 9h18M9 21V9"></path>
         </svg>
         {{ 'labels.inputs.General' | translate }}
+      </a>
+      <a
+        mat-tab-link
+        [routerLink]="['./account-management']"
+        routerLinkActive
+        #accountManagement="routerLinkActive"
+        [active]="accountManagement.isActive"
+        *mifosxHasPermission="[
+          'READ_SAVINGS_ACCOUNT_RELATIONSHIP',
+          'READ_GUARANTEE_SWEEP',
+          'READ_PLANNED_SAVINGS',
+          'READ_CONSOLIDATED_ISR_ELIGIBILITY'
+        ]"
+      >
+        {{ 'AccountManagement.Title' | translate }}
       </a>
       <a
         mat-tab-link

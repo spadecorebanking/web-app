@@ -6,13 +6,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { HttpErrorResponse, HttpRequest } from '@angular/common/http';
+import { throwError } from 'rxjs';
+import { HttpContext, HttpErrorResponse, HttpRequest } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { TranslateDefaultParser, TranslateService } from '@ngx-translate/core';
 
 import { AlertService } from '../alert/alert.service';
 import { ErrorHandlerInterceptor } from './error-handler.interceptor';
 import { BRANDING_API_PATH } from 'app/shared/theme-picker/theme.model';
+import { ACCOUNT_MANAGEMENT_REQUEST } from './account-management-request';
 import { environment } from '../../../environments/environment';
 
 describe('ErrorHandlerInterceptor', () => {
@@ -24,9 +26,14 @@ describe('ErrorHandlerInterceptor', () => {
    * @returns 'errored' when the failure is passed through silently, 'threw'
    * when the interceptor rethrows after alerting.
    */
-  function intercept(url: string, status: number, method: 'GET' | 'PUT' | 'POST' = 'GET'): string {
+  function intercept(
+    url: string,
+    status: number,
+    method: 'GET' | 'PUT' | 'POST' = 'GET',
+    error: unknown = { defaultUserMessage: 'boom' }
+  ): string {
     const request = method === 'GET' ? new HttpRequest('GET', url) : new HttpRequest(method, url, {});
-    const response = new HttpErrorResponse({ status, url, error: { defaultUserMessage: 'boom' } });
+    const response = new HttpErrorResponse({ status, url, error });
     try {
       let outcome = 'none';
       (interceptor as any).handleError(response, request).subscribe({ error: () => (outcome = 'errored') });
@@ -35,6 +42,89 @@ describe('ErrorHandlerInterceptor', () => {
       return 'threw';
     }
   }
+
+  it.each([
+    400,
+    403,
+    404,
+    409,
+    422,
+    500
+  ])('keeps account-management status %s out of raw error alerts and logs', (status) => {
+    const log = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    expect(
+      intercept('/savings/planned-savings/clients/7/pockets', status, 'GET', {
+        defaultUserMessage: 'SQL private account details'
+      })
+    ).toBe('errored');
+    expect(alert).not.toHaveBeenCalled();
+    expect(log).not.toHaveBeenCalled();
+    log.mockRestore();
+  });
+  it('preserves native account failures for safe scoped rendering and retains the 401 session alert', () => {
+    const request = new HttpRequest('GET', '/savingsaccounts/18', {
+      context: new HttpContext().set(ACCOUNT_MANAGEMENT_REQUEST, true)
+    });
+    const response = new HttpErrorResponse({ status: 401, error: { defaultUserMessage: 'private internals' } });
+    let result: unknown;
+    interceptor
+      .intercept(request, { handle: () => throwError(() => response) })
+      .subscribe({ error: (error) => (result = error) });
+    expect(result).toBe(response);
+    expect(alert).toHaveBeenCalledWith({
+      type: 'errors.error.auth.sessionExpired.type',
+      message: 'errors.error.auth.sessionExpired.message'
+    });
+  });
+  it.each([
+    '/savingsaccounts/42?command=activate',
+    '/savingsaccounts/42/transactions/7?command=modify'
+  ])('renders known BE-06 business errors safely for workflows without inline handling (%s)', (url) => {
+    const error = {
+      errors: [
+        {
+          userMessageGlobalisationCode: 'error.msg.savings.product.transaction.deposits.disabled',
+          defaultUserMessage: 'private stack trace'
+        }
+      ]
+    };
+    expect(intercept(url, 403, 'POST', error)).toBe('errored');
+    expect(alert).toHaveBeenCalledWith({
+      type: 'FinancialControls.TransactionRejected',
+      message: 'FinancialControls.Errors.deposits.disabled'
+    });
+  });
+  it.each([
+    '/savingsaccounts/42/transactions?command=deposit',
+    '/fineract-provider/api/v1/savingsaccounts/42/transactions?command=withdrawal',
+    '/base-teller/withdrawals',
+    '/fineract-provider/api/v2/base-teller/account-transfers'
+  ])('leaves known restrictions to the local transaction message for %s', (url) => {
+    const request = new HttpRequest('POST', url, {});
+    const response = new HttpErrorResponse({
+      status: 403,
+      url,
+      error: {
+        errors: [{ userMessageGlobalisationCode: 'error.msg.savings.product.transaction.withdrawals.disabled' }]
+      }
+    });
+    const log = jest.spyOn(console, 'error');
+    let received: unknown;
+    interceptor
+      .intercept(request, { handle: () => throwError(() => response) })
+      .subscribe({ error: (error: unknown) => (received = error) });
+    expect(received).toBe(response);
+    expect(alert).not.toHaveBeenCalled();
+    expect(log).not.toHaveBeenCalled();
+    log.mockRestore();
+  });
+  it('lets monthly diagnostics handle malformed backend errors without logging server messages', () => {
+    const log = jest.spyOn(console, 'error');
+    expect(intercept('/savings/monthly-fees/runs', 500, 'POST', 'private SQL')).toBe('errored');
+    expect(log).not.toHaveBeenCalled();
+    expect(alert).not.toHaveBeenCalled();
+    log.mockRestore();
+  });
 
   beforeEach(() => {
     alert = jest.fn();
@@ -46,6 +136,143 @@ describe('ErrorHandlerInterceptor', () => {
       ]
     });
     interceptor = TestBed.inject(ErrorHandlerInterceptor);
+  });
+
+  it.each([
+    0,
+    400,
+    401,
+    403,
+    404,
+    500
+  ])('keeps vault failures local and safe (HTTP %s)', (status) => {
+    const log = jest.spyOn(console, 'error');
+    expect(intercept('/fineract-provider/api/v2/base-teller/vault/context', status, 'GET', 'sensitive SQL')).toBe(
+      'errored'
+    );
+    expect(log).not.toHaveBeenCalled();
+    if (status !== 401) expect(alert).not.toHaveBeenCalled();
+    else
+      expect(alert).toHaveBeenCalledWith({
+        type: 'errors.error.auth.sessionExpired.type',
+        message: 'errors.error.auth.sessionExpired.message'
+      });
+    log.mockRestore();
+  });
+  it.each([
+    0,
+    400,
+    403,
+    409,
+    422,
+    500
+  ])('keeps vault preview diagnostics out of logs and global alerts (HTTP %s)', (status) => {
+    const log = jest.spyOn(console, 'error');
+    expect(
+      intercept(
+        '/fineract-provider/api/v2/base-teller/vault-cash-deposits/preview',
+        status,
+        'POST',
+        'private SQL token'
+      )
+    ).toBe('errored');
+    expect(log).not.toHaveBeenCalled();
+    expect(alert).not.toHaveBeenCalled();
+    log.mockRestore();
+  });
+
+  it.each([
+    0,
+    400,
+    403,
+    409,
+    500
+  ])('keeps pickup error bodies out of generic alerts and logging (HTTP %s)', (status) => {
+    const log = jest.spyOn(console, 'error');
+    const warn = jest.spyOn(console, 'warn');
+    expect(
+      intercept('/fineract-provider/api/v2/base-teller/cash-drawer-pickups', status, 'POST', {
+        developerMessage: 'sensitive credential or SQL text'
+      })
+    ).toBe('errored');
+    expect(alert).not.toHaveBeenCalled();
+    expect(log).not.toHaveBeenCalled();
+    expect(warn).not.toHaveBeenCalled();
+    log.mockRestore();
+    warn.mockRestore();
+  });
+
+  it.each([
+    '/v2/base-teller/cash-drawer-pickups/context',
+    'https://gateway.example.test/custom/base-teller/cash-drawer-pickups'
+  ])('shows a safe session-expired alert for pickup 401 at %s', (url) => {
+    const log = jest.spyOn(console, 'error');
+    expect(intercept(url, 401, 'POST', { developerMessage: 'sensitive server error' })).toBe('errored');
+    expect(alert).toHaveBeenCalledWith({
+      type: 'errors.error.auth.sessionExpired.type',
+      message: 'errors.error.auth.sessionExpired.message'
+    });
+    expect(log).not.toHaveBeenCalled();
+    log.mockRestore();
+  });
+
+  it.each([
+    { userMessageGlobalisationCode: 'authorization.invalid' },
+    { errors: [{ userMessageGlobalisationCode: 'error.msg.base.teller.pickup.authorization.invalid' }] },
+    JSON.stringify({ errors: [{ userMessageGlobalisationCode: 'authorization.invalid' }] })
+  ])('keeps pickup authorization 401 failures local without a session-expired alert', (body) => {
+    expect(intercept('/v2/base-teller/cash-drawer-pickups', 401, 'POST', body)).toBe('errored');
+    expect(alert).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    0,
+    400,
+    403,
+    409,
+    500
+  ])('lets account transfers render safe local errors (HTTP %s)', (status) => {
+    const log = jest.spyOn(console, 'error');
+    expect(
+      intercept(
+        '/fineract-provider/api/v2/base-teller/account-transfers/preview',
+        status,
+        'POST',
+        'java.sql private trace'
+      )
+    ).toBe('errored');
+    expect(alert).not.toHaveBeenCalled();
+    expect(log).not.toHaveBeenCalled();
+    log.mockRestore();
+  });
+
+  it('uses a safe session-expired alert for account transfer authentication errors', () => {
+    const log = jest.spyOn(console, 'error');
+    expect(intercept('/v2/base-teller/account-transfers/context', 401, 'GET', 'private server trace')).toBe('errored');
+    expect(alert).toHaveBeenCalledWith({
+      type: 'errors.error.auth.sessionExpired.type',
+      message: 'errors.error.auth.sessionExpired.message'
+    });
+    expect(log).not.toHaveBeenCalled();
+    log.mockRestore();
+  });
+
+  it.each([
+    0,
+    400,
+    403,
+    409,
+    500
+  ])('keeps withdrawal identification and server error text out of shared logs and alerts (HTTP %s)', (status) => {
+    const log = jest.spyOn(console, 'error');
+    expect(
+      intercept('/v2/base-teller/withdrawals/preview', status, 'POST', {
+        developerMessage: 'private identification and SQL'
+      })
+    ).toBe('errored');
+    expect(log).not.toHaveBeenCalled();
+    expect(alert).not.toHaveBeenCalled();
+    log.mockRestore();
   });
 
   const cashExchangeUrls = [
@@ -69,6 +296,31 @@ describe('ErrorHandlerInterceptor', () => {
   it('does not mistake a similarly named endpoint for Cash Exchange', () => {
     expect(intercept('/base-teller/cash-exchanges-history', 403)).toBe('threw');
     expect(alert).toHaveBeenCalled();
+  });
+
+  const closingUrls = [
+    '/base-teller/end-of-day-closing',
+    'https://gateway.example.test/custom/path/base-teller/end-of-day-closing/preview'
+  ];
+
+  it.each(closingUrls)('keeps closing authorization failures local at %s', (url) => {
+    const error = { errors: [{ userMessageGlobalisationCode: 'authorization.invalid' }] };
+    expect(intercept(url, 401, 'POST', error)).toBe('errored');
+    expect(alert).not.toHaveBeenCalled();
+  });
+
+  it.each(closingUrls)('alerts for an expired closing session at %s', (url) => {
+    expect(intercept(url, 401)).toBe('errored');
+    expect(alert).toHaveBeenCalledWith({
+      type: 'errors.error.auth.sessionExpired.type',
+      message: 'errors.error.auth.sessionExpired.message'
+    });
+  });
+
+  it('keeps serialized closing authorization failures local', () => {
+    const error = JSON.stringify({ userMessageGlobalisationCode: 'authorization.required' });
+    expect(intercept('/base-teller/end-of-day-closing', 401, 'POST', error)).toBe('errored');
+    expect(alert).not.toHaveBeenCalled();
   });
 
   it('does not alert when the branding endpoint is absent', () => {
