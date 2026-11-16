@@ -12,6 +12,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 
 import { AccountTransfersService } from './account-transfers.service';
+import { PLACEHOLDER_INTERBANK_BANKS } from './interbank-banks';
 
 describe('AccountTransfersService', () => {
   let service: AccountTransfersService;
@@ -42,5 +43,21 @@ describe('AccountTransfersService', () => {
     req.flush({ resourceId: 7, changes: { status: 3 } });
 
     expect(response).toEqual({ resourceId: 7, changes: { status: 3 } });
+  });
+
+  it('returns the placeholder interbank banks without calling a server', () => {
+    let banks: any;
+    service.getInterbankBanks().subscribe((b) => (banks = b));
+
+    // httpMock.verify() in afterEach fails if any request was made.
+    expect(banks.map((bank: any) => bank.name)).toEqual([
+      'GT Bank',
+      'Eco Bank',
+      'Access Bank'
+    ]);
+
+    // Each call gets its own array, so a caller cannot change the shared placeholder list.
+    banks.push({ id: 'x', name: 'Changed' });
+    expect(PLACEHOLDER_INTERBANK_BANKS).toHaveLength(3);
   });
 });

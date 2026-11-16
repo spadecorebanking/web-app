@@ -11,7 +11,10 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 
 /** rxjs Imports */
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+
+/** Custom Models */
+import { InterbankBank, PLACEHOLDER_INTERBANK_BANKS } from './interbank-banks';
 
 /** Environment Configuration */
 import { environment } from '../../environments/environment';
@@ -153,6 +156,29 @@ export class AccountTransfersService {
           );
         })
       );
+  }
+
+  /**
+   * Returns the banks that can receive an interbank transfer, for the "Bank"
+   * dropdown of the interbank transfer form.
+   *
+   * For now this returns the placeholder list (GT Bank, Eco Bank, Access Bank)
+   * without calling a server. To connect the bank list API, replace the body
+   * with an HTTP call and map each item to `InterbankBank`, for example:
+   *
+   * ```ts
+   * return this.http
+   *   .get<any[]>(`${interbankApiBase}/banks`)
+   *   .pipe(map((banks) => banks.map((bank) => ({ id: bank.code, name: bank.name }))));
+   * ```
+   *
+   * The form already shows a loading state, an error with a Retry button, and
+   * an empty-list message, so an HTTP call needs no changes in the component.
+   *
+   * @returns The receiving banks, in the order they should be listed.
+   */
+  getInterbankBanks(): Observable<InterbankBank[]> {
+    return of([...PLACEHOLDER_INTERBANK_BANKS]);
   }
 
   sendInterbankTransfer(body: any): Observable<any> {

@@ -62,66 +62,66 @@
 
       <!-- Beneficiary Form -->
       @if (interbank) {
-        <!-- Interbank: Phone Number Search -->
+        <!-- Interbank: receiving bank and account number -->
         <div class="section-container">
           <h3 class="section-title transfer-heading">{{ 'labels.heading.Transferred To' | translate }}</h3>
           <form [formGroup]="beneficiaryForm" class="transfer-form">
             <div class="form-grid">
               <mat-form-field class="form-field">
-                <mat-label>{{ 'labels.inputs.Phone Number' | translate }}</mat-label>
+                <mat-label>{{ 'labels.inputs.Bank' | translate }}</mat-label>
+                <!-- Not disabled while loading: a disabled control is left out of the form's validity,
+                     which would let Step 1 pass without a bank. The panel is just empty until then. -->
+                <mat-select required formControlName="toBank" [title]="'labels.inputs.Bank' | translate">
+                  @for (bank of interbankBanks; track bank.id) {
+                    <mat-option [value]="bank.id">{{ bank.name }}</mat-option>
+                  }
+                </mat-select>
+                @if (interbankBanksLoading) {
+                  <mat-hint>{{ 'labels.text.Loading' | translate }}</mat-hint>
+                } @else if (!interbankBanksLoadFailed && interbankBanks.length === 0) {
+                  <mat-hint>{{ 'labels.text.NoBanksAvailable' | translate }}</mat-hint>
+                }
+                @if (beneficiaryForm.controls['toBank'].hasError('required')) {
+                  <mat-error>
+                    {{ 'labels.inputs.Bank' | translate }} {{ 'labels.commons.is' | translate }}
+                    <strong>{{ 'labels.commons.required' | translate }}</strong>
+                  </mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field class="form-field">
+                <mat-label>{{ 'labels.inputs.Account Number' | translate }}</mat-label>
                 <input
                   matInput
-                  [readonly]="interbankTransferForm"
-                  type="tel"
-                  formControlName="phoneNumber"
-                  maxlength="10"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  formControlName="toAccountNumber"
+                  [maxlength]="accountNumberLength"
                   required
-                  placeholder="{{ 'labels.text.EnterPhoneNumber' | translate }}"
-                  [title]="'labels.inputs.Phone Number' | translate"
+                  placeholder="{{ 'labels.text.EnterAccountNumber' | translate }}"
+                  [title]="'labels.inputs.Account Number' | translate"
                 />
-                <mat-hint align="end">{{ beneficiaryForm.get('phoneNumber')?.value?.length || 0 }}/10</mat-hint>
+                <mat-hint align="end"
+                  >{{ beneficiaryForm.get('toAccountNumber')?.value?.length || 0 }}/{{ accountNumberLength }}</mat-hint
+                >
+                @if (beneficiaryForm.controls['toAccountNumber'].hasError('required')) {
+                  <mat-error>
+                    {{ 'labels.inputs.Account Number' | translate }} {{ 'labels.commons.is' | translate }}
+                    <strong>{{ 'labels.commons.required' | translate }}</strong>
+                  </mat-error>
+                } @else if (beneficiaryForm.controls['toAccountNumber'].hasError('pattern')) {
+                  <mat-error>
+                    {{ 'labels.text.AccountNumberDigits' | translate: { length: accountNumberLength } }}
+                  </mat-error>
+                }
               </mat-form-field>
             </div>
-            @if (!interbankTransferForm) {
-              <div class="action-buttons step-actions">
-                <ng-container *mifosxHasPermission="'CREATE_ACCOUNTTRANSFER'">
-                  <button
-                    mat-raised-button
-                    type="button"
-                    color="primary"
-                    [disabled]="isLoading || beneficiaryForm.get('phoneNumber')?.value?.length !== 10"
-                    (click)="searchAccountByNumber()"
-                    class="primary-button"
-                  >
-                    @if (isLoading) {
-                      <mat-spinner diameter="20"></mat-spinner>
-                    } @else {
-                      {{ 'labels.buttons.Search' | translate }}
-                    }
-                  </button>
-                </ng-container>
-              </div>
-            }
-
-            <!-- Interbank Beneficiary Preview (Read-Only) -->
-            @if (interbankTransferForm) {
-              <div class="info-grid beneficiary-preview">
-                <div class="info-row">
-                  <div class="info-label">{{ 'labels.inputs.Bank' | translate }}</div>
-                  <div class="info-value">{{ beneficiaryForm.get('toBank')?.value }}</div>
-                </div>
-                <div class="info-row">
-                  <div class="info-label">{{ 'labels.inputs.Client' | translate }}</div>
-                  <div class="info-value">{{ beneficiaryForm.get('toClientId')?.value }}</div>
-                </div>
-                <div class="info-row">
-                  <div class="info-label">{{ 'labels.inputs.Account Type' | translate }}</div>
-                  <div class="info-value">{{ beneficiaryForm.get('toAccountType')?.value }}</div>
-                </div>
-                <div class="info-row">
-                  <div class="info-label">{{ 'labels.inputs.Account' | translate }}</div>
-                  <div class="info-value">{{ beneficiaryForm.get('toAccountId')?.value }}</div>
-                </div>
+            @if (interbankBanksLoadFailed) {
+              <div class="bank-list-error" role="alert">
+                <span>{{ 'labels.text.BankListLoadFailed' | translate }}</span>
+                <button mat-stroked-button type="button" (click)="loadInterbankBanks()">
+                  {{ 'labels.buttons.Retry' | translate }}
+                </button>
               </div>
             }
           </form>
@@ -214,11 +214,7 @@
           <fa-icon icon="arrow-left" class="m-r-10"></fa-icon>
           {{ 'labels.buttons.Previous' | translate }}
         </button>
-        <button
-          mat-raised-button
-          matStepperNext
-          [disabled]="interbank ? !interbankTransferForm : !beneficiaryForm.valid"
-        >
+        <button mat-raised-button matStepperNext [disabled]="!beneficiaryForm.valid">
           {{ 'labels.buttons.Next' | translate }}
           <fa-icon icon="arrow-right" class="m-l-10"></fa-icon>
         </button>
@@ -243,18 +239,14 @@
         <div class="section-container beneficiary-summary">
           <h3 class="section-title transfer-heading">{{ 'labels.heading.Beneficiary' | translate }}</h3>
           <div class="info-grid">
-            @if (interbank && interbankTransferForm) {
+            @if (interbank) {
               <div class="info-row">
                 <div class="info-label">{{ 'labels.inputs.Bank' | translate }}</div>
-                <div class="info-value">{{ beneficiaryForm.get('toBank')?.value }}</div>
+                <div class="info-value">{{ getSelectedBankName() }}</div>
               </div>
               <div class="info-row">
-                <div class="info-label">{{ 'labels.inputs.Client' | translate }}</div>
-                <div class="info-value">{{ beneficiaryForm.get('toClientId')?.value }}</div>
-              </div>
-              <div class="info-row">
-                <div class="info-label">{{ 'labels.inputs.Account' | translate }}</div>
-                <div class="info-value">{{ beneficiaryForm.get('toAccountId')?.value }}</div>
+                <div class="info-label">{{ 'labels.inputs.Account Number' | translate }}</div>
+                <div class="info-value">{{ beneficiaryForm.get('toAccountNumber')?.value }}</div>
               </div>
             } @else {
               <div class="info-row">
@@ -412,18 +404,14 @@
                   }}
                 </div>
               </div>
-              @if (interbank && interbankTransferForm) {
+              @if (interbank) {
                 <div class="info-row">
                   <div class="info-label">{{ 'labels.inputs.Bank' | translate }}</div>
-                  <div class="info-value">{{ beneficiaryForm.get('toBank')?.value }}</div>
+                  <div class="info-value">{{ getSelectedBankName() }}</div>
                 </div>
                 <div class="info-row">
-                  <div class="info-label">{{ 'labels.inputs.Client' | translate }}</div>
-                  <div class="info-value">{{ beneficiaryForm.get('toClientId')?.value }}</div>
-                </div>
-                <div class="info-row">
-                  <div class="info-label">{{ 'labels.inputs.Account' | translate }}</div>
-                  <div class="info-value">{{ beneficiaryForm.get('toAccountId')?.value }}</div>
+                  <div class="info-label">{{ 'labels.inputs.Account Number' | translate }}</div>
+                  <div class="info-value">{{ beneficiaryForm.get('toAccountNumber')?.value }}</div>
                 </div>
               } @else {
                 <div class="info-row">

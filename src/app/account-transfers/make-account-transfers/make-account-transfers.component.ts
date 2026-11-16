@@ -27,6 +27,7 @@ import { SettingsService } from 'app/settings/settings.service';
 import { ClientsService } from 'app/clients/clients.service';
 import { Dates } from 'app/core/utils/dates';
 import { TranslateService } from '@ngx-translate/core';
+import { InterbankBank, INTERBANK_ACCOUNT_NUMBER_LENGTH } from '../interbank-banks';
 
 /** Environment Configuration */
 import { environment } from '../../../environments/environment';
@@ -115,8 +116,14 @@ export class MakeAccountTransfersComponent implements OnInit, AfterViewInit {
   clientsData: any;
   /** interbank transfer */
   interbank: boolean = false;
-  /** Interbank transfer form flag */
-  interbankTransferForm: boolean = false;
+  /** Banks offered in the interbank "Bank" dropdown. Empty until `loadInterbankBanks()` returns. */
+  interbankBanks: InterbankBank[] = [];
+  /** True while the bank list is being fetched; the Bank field shows a loading hint meanwhile. */
+  interbankBanksLoading: boolean = false;
+  /** True when the bank list request failed; the form shows an error with a Retry button. */
+  interbankBanksLoadFailed: boolean = false;
+  /** Required length of the receiving account number, used by the validator, `maxlength` and the hint. */
+  readonly accountNumberLength = INTERBANK_ACCOUNT_NUMBER_LENGTH;
   balance: number = 0;
   isLoading: boolean = false;
   /** Transfer status flags (Step 3) */
@@ -170,7 +177,8 @@ export class MakeAccountTransfersComponent implements OnInit, AfterViewInit {
     if (!this.interbank) {
       this.createNormalBeneficiaryForm();
     } else {
-      this.createEmptyInterbankBeneficiaryForm();
+      this.createInterbankBeneficiaryForm();
+      this.loadInterbankBanks();
     }
     this.createTransferDetailsForm();
   }
@@ -200,44 +208,79 @@ export class MakeAccountTransfersComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Creates an empty beneficiary form for interbank transfers (phone search).
+   * Creates the beneficiary form for interbank transfers (Step 1): the
+   * receiving bank and the account number at that bank.
+   *
+   * - `toBank` holds the selected bank's `id` (see `InterbankBank`), which is
+   *   sent as `to.fspId` when the transfer is submitted.
+   * - `toAccountNumber` must be exactly `accountNumberLength` digits (a
+   *   10-digit NUBAN by default). The pattern rejects spaces and letters, so
+   *   the value can be sent to the switch unchanged.
+   *
+   * Step 1 can be left as soon as both fields are valid. There is no name
+   * enquiry yet, so staff should confirm the account holder with the customer
+   * before submitting.
    */
-  createEmptyInterbankBeneficiaryForm() {
+  createInterbankBeneficiaryForm() {
     this.beneficiaryForm = this.formBuilder.group({
-      phoneNumber: [
+      toBank: [
+        '',
+        Validators.required
+      ],
+      toAccountNumber: [
         '',
         [
           Validators.required,
-          Validators.minLength(10),
-          Validators.maxLength(10)
+          Validators.pattern(new RegExp(`^\\d{${this.accountNumberLength}}$`))
         ]
-      ],
-      toBank: [''],
-      toClientId: [''],
-      toAccountType: [''],
-      toAccountId: ['']
+      ]
     });
   }
 
   /**
-   * Populates the interbank beneficiary form after phone search resolves an account.
+   * Loads the banks for the interbank "Bank" dropdown from
+   * `AccountTransfersService.getInterbankBanks()`.
+   *
+   * The service returns a placeholder list for now. The loading and failure
+   * flags are already handled here so that connecting the real API needs no
+   * changes in this component. This component uses OnPush change detection,
+   * so each result calls `markForCheck()` to update the view. A failed load
+   * can be retried from the Retry button in the template.
    */
-  populateInterbankBeneficiary(account: any) {
-    if (!account) {
-      console.error('Account data is undefined');
-      this.isLoading = false;
-      return;
+  loadInterbankBanks() {
+    this.interbankBanksLoading = true;
+    this.interbankBanksLoadFailed = false;
+    this.accountTransfersService
+      .getInterbankBanks()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (banks) => {
+          this.interbankBanks = banks ?? [];
+          this.interbankBanksLoading = false;
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('Loading interbank banks failed:', error);
+          this.interbankBanks = [];
+          this.interbankBanksLoading = false;
+          this.interbankBanksLoadFailed = true;
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
+  /**
+   * Returns the name of the bank selected in the interbank form, for the
+   * Step 2 and Step 3 summaries. The form stores only the bank id, so the
+   * name is looked up in the loaded list. If the id is not in the list, the
+   * id itself is returned so the summary is never blank.
+   */
+  getSelectedBankName(): string {
+    const bankId = this.beneficiaryForm?.get('toBank')?.value;
+    if (!bankId) {
+      return '';
     }
-
-    this.beneficiaryForm.patchValue({
-      toBank: account.destinationFspId || '',
-      toClientId: (account.firstName || account.firsName || '') + ' ' + (account.lastName || ''),
-      toAccountType: 'Saving Account',
-      toAccountId: account.partyId || ''
-    });
-
-    this.interbankTransferForm = true;
-    this.isLoading = false;
+    return this.interbankBanks.find((bank) => bank.id === bankId)?.name ?? bankId;
   }
 
   /**
@@ -431,10 +474,13 @@ export class MakeAccountTransfersComponent implements OnInit, AfterViewInit {
         idType: 'MSISDN',
         idValue: this.accountTransferTemplateData.fromAccount.externalId?.trim() || ''
       },
+      // The receiving party is identified by its account number at the selected bank, so the
+      // id type is the Mojaloop party type for account numbers (the payer is still identified
+      // by MSISDN). The bank list API and the transfer API must agree on the bank id sent as fspId.
       to: {
         fspId: this.beneficiaryForm.controls.toBank.value,
-        idType: 'MSISDN',
-        idValue: this.beneficiaryForm.controls.toAccountId.value
+        idType: 'ACCOUNT_ID',
+        idValue: this.beneficiaryForm.controls.toAccountNumber.value
       },
       amountType: 'SEND',
       amount: {
@@ -470,25 +516,5 @@ export class MakeAccountTransfersComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
       }
     );
-  }
-
-  searchAccountByNumber() {
-    const phoneNumber = this.beneficiaryForm.get('phoneNumber')?.value;
-    if (!phoneNumber || phoneNumber.length !== 10) {
-      return;
-    }
-
-    this.isLoading = true;
-    this.accountTransfersService
-      .getAccountByNumber(phoneNumber, this.accountTransferTemplateData.currency.code)
-      .subscribe(
-        (acc) => {
-          this.populateInterbankBeneficiary(acc);
-        },
-        (error) => {
-          console.error('searching account error:', error);
-          this.isLoading = false;
-        }
-      );
   }
 }
